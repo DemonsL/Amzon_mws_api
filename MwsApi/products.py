@@ -1,5 +1,5 @@
 # coding: utf-8
-
+from Common import common
 from MwsApi.mws_client import MwsClient
 
 
@@ -8,8 +8,8 @@ class Products(MwsClient):
     产品接口
     """
 
-    version = '2011-10-01'
-    uri = '/Products/{}'.format(version)
+    VERSION = '2011-10-01'
+    URI = '/Products/{}'.format(VERSION)
 
     def list_matching_products(self, params):
         http_method = 'POST'
@@ -30,7 +30,7 @@ class Products(MwsClient):
         if asins.find(',') == -1:
             parameters = '&ASINList.ASIN.1=' + asins
         else:
-            parameters = self.set_param_list(asins, 'ASINList.ASIN')
+            parameters = common.set_param_list(asins, 'ASINList.ASIN')
         return self.req_handler(http_method, action, parameters)
 
     def get_matching_product_for_id(self, params):
@@ -43,7 +43,7 @@ class Products(MwsClient):
         if id_list.find(',') == -1:
             parameters += '&IdList.Id.1=' + id_list
         else:
-            parameters += self.set_param_list(id_list, 'IdList.Id')
+            parameters += common.set_param_list(id_list, 'IdList.Id')
         return self.req_handler(http_method, action, parameters)
 
     def get_competitive_pricing_for_sku(self, params):
@@ -54,7 +54,7 @@ class Products(MwsClient):
         if seller_skus.find(',') == -1:
             parameters = '&SellerSKUList.SellerSKU.1=' + seller_skus
         else:
-            parameters = self.set_param_list(seller_skus, 'SellerSKUList.SellerSKU')
+            parameters = common.set_param_list(seller_skus, 'SellerSKUList.SellerSKU')
         return self.req_handler(http_method, action, parameters)
 
     def get_competitive_pricing_for_asin(self, params):
@@ -65,7 +65,7 @@ class Products(MwsClient):
         if asins.find(',') == -1:
             parameters = '&ASINList.ASIN.1=' + asins
         else:
-            parameters = self.set_param_list(asins, 'ASINList.ASIN')
+            parameters = common.set_param_list(asins, 'ASINList.ASIN')
         return self.req_handler(http_method, action, parameters)
 
     def get_lowest_offer_listings_for_sku(self, params):
@@ -77,7 +77,7 @@ class Products(MwsClient):
         if seller_skus.find(',') == -1:
             parameters = '&SellerSKUList.SellerSKU.1=' + seller_skus
         else:
-            parameters = self.set_param_list(seller_skus, 'SellerSKUList.SellerSKU')
+            parameters = common.set_param_list(seller_skus, 'SellerSKUList.SellerSKU')
         if item_condition:
             parameters += '&ItemCondition=' + item_condition
         return self.req_handler(http_method, action, parameters)
@@ -91,7 +91,7 @@ class Products(MwsClient):
         if asins.find(',') == -1:
             parameters = '&ASINList.ASIN.1=' + asins
         else:
-            parameters = self.set_param_list(asins, 'ASINList.ASIN')
+            parameters = common.set_param_list(asins, 'ASINList.ASIN')
         if item_condition:
             parameters += '&ItemCondition=' + item_condition
         return self.req_handler(http_method, action, parameters)
@@ -131,7 +131,7 @@ class Products(MwsClient):
         if seller_skus.find(',') == -1:
             parameters = '&SellerSKUList.SellerSKU.1=' + seller_skus
         else:
-            parameters = self.set_param_list(seller_skus, 'SellerSKUList.SellerSKU')
+            parameters = common.set_param_list(seller_skus, 'SellerSKUList.SellerSKU')
         if item_condition:
             parameters += '&ItemCondition=' + item_condition
         return self.req_handler(http_method, action, parameters)
@@ -145,7 +145,7 @@ class Products(MwsClient):
         if asins.find(',') == -1:
             parameters = '&ASINList.ASIN.1=' + asins
         else:
-            parameters = self.set_param_list(asins, 'ASINList.ASIN')
+            parameters = common.set_param_list(asins, 'ASINList.ASIN')
         if item_condition:
             parameters += '&ItemCondition=' + item_condition
         return self.req_handler(http_method, action, parameters)
@@ -166,15 +166,8 @@ class Products(MwsClient):
         parameters = '&ASIN=' + asin
         return self.req_handler(http_method, action, parameters)
 
-    def set_param_list(self, param_list, param_name):
-        i, resp= 1, ''
-        for param in param_list.split(','):
-            resp += '&{pn}.{i}='.format(pn=param_name, i=i) + param
-            i += 1
-        return resp
-
     def req_handler(self, http_method, action, params):
-        query_string = self.get_query_string(action, params, self.version)
-        signature = self.string_to_sign(http_method, self.uri, query_string)
-        url = self.get_url(self.host, self.uri, query_string, signature)
+        query_string = self.get_query_string(action, params, self.VERSION)
+        signature = self.string_to_sign(http_method, self.URI, query_string)
+        url = self.get_url(self.host, self.URI, query_string, signature)
         return self.excute_req(url, http_method)
