@@ -33,7 +33,7 @@ class MwsClient:
         time_encode = self.params_encode(iso_time)
 
         query_string = 'AWSAccessKeyId=' + self.access_key + '&Action=' + action + parameters + \
-                       '&MWSAuthToken=' + self.auth_token + '&MarketplaceId=' + self.marketplace + \
+                       '&MWSAuthToken=' + self.auth_token +  '&MarketplaceId=' + self.marketplace + \
                        '&SellerId=' + self.seller_id + '&SignatureMethod=' + self.signature_method + \
                        '&SignatureVersion=' + self.signature_version + '&Timestamp=' + time_encode + \
                        '&Version=' + version
@@ -55,8 +55,13 @@ class MwsClient:
         url = 'https://' + host + uri + '?' + query_string + '&Signature=' + signature
         return url
 
-    def excute_req(self, url, method='GET'):
-        resp = requests.get(url)
-        if method == 'POST':
-            resp = requests.post(url)
+    def excute_req(self, url, method='POST'):
+        headers = {
+            "User_Agent": "Amzon_mws_api/1.0 (Language=Python)",
+            "Host":"mws.amazonservices.com",
+            "Content-Type": "text/xml"
+        }
+        resp = requests.post(url, headers=headers)
+        if method == 'GET':
+            resp = requests.get(url, headers=headers)
         return resp
