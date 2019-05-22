@@ -15,7 +15,7 @@ class AprFBAMangeInventory(Base):
 
     __tablename__ = 'Apr_FBA_Manage_Inventory'
 
-    ID = Column(Integer)
+    ID = Column(Integer, primary_key=True)
     SnapDate = Column(DateTime)
     Country = Column(String(10))
     Sku = Column(String(50))
@@ -64,7 +64,7 @@ class AprFBAAllOrders(Base):
 
     __tablename__ = 'Apr_FBA_All_Orders'
 
-    ID = Column(Integer)
+    ID = Column(Integer, primary_key=True)
     Country = Column(String(10))
     AmazonOrderId = Column(String(20))
     MerchantOrderId = Column(String(20))

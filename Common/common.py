@@ -1,5 +1,7 @@
 # coding: utf-8
-from datetime import datetime
+import json
+import datetime
+import xmltodict
 
 def set_param_list(param_list, param_name):
     i, resp = 1, ''
@@ -9,5 +11,20 @@ def set_param_list(param_list, param_name):
     return resp
 
 def amz_iso_time(time):
-    dt = datetime.strftime(time, '%Y-%m-%dT%H:%M:%SZ')
+    dt = datetime.datetime.strftime(time, '%Y-%m-%dT%H:%M:%SZ')
     return dt
+
+def xml_to_json(data):
+    data_dict = xmltodict.parse(data)
+    json_str = json.dumps(data_dict)
+    data_json = json.loads(json_str)
+    return data_json
+
+def flat_to_json(data):
+    resp_list = [flat.split('\t') for flat in data.split('\r\n')]
+    d_key = resp_list[0]
+    datas = []
+    for d_value in resp_list[1:]:
+        datas.append(dict(zip(d_key, d_value)))
+    data_json = json.dumps(datas)
+    return data_json
