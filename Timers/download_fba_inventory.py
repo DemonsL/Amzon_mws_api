@@ -18,7 +18,7 @@ class DownloadFbaInventory(DownloadReports):
 
     def get_report_id(self, rp_client, rpq_id):
         while True:
-            time.sleep(15)                  # 等待报告生成成功
+            time.sleep(20)                  # 等待报告生成成功
             rpq_resp = self.get_report_requests(rp_client, rpq_id)
             print(rpq_resp)
             rpq_list = rpq_resp.get('GetReportRequestListResponse')
@@ -31,8 +31,7 @@ class DownloadFbaInventory(DownloadReports):
                                     .get('ReportRequestInfo') \
                                     .get('GeneratedReportId')
                     return rp_id
-                elif rpq_status == '_CANCELLED_':
-                    time.sleep(1785)                    #  实时更新报告每30分钟不超过一次
+            time.sleep(25)              # 请求报告列表每45秒一次
 
     def download_run(self, rp_client, params):
         reports = self.request_report(rp_client, params)
