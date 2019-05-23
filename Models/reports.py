@@ -1,6 +1,6 @@
 # coding: utf-8
 from Config import db
-from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime, create_engine
+from sqlalchemy import Column, String, Integer, Float, DECIMAL, DateTime, create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -23,8 +23,8 @@ class AprFBAMangeInventory(Base):
     Asin = Column(String(20))
     ProductName = Column(String(300))
     Condition = Column(String(20))
-    Price = Column(Float(6,2))
-    PerUnitVolume = Column(Float(10,2))
+    Price = Column(DECIMAL(6,2))
+    PerUnitVolume = Column(DECIMAL(10,2))
     AfnTotal = Column(Integer)
     MfnListingExists = Column(String(10))
     MfnFulfillable = Column(Integer)
@@ -45,19 +45,19 @@ class AprFBAMangeInventory(Base):
         self.Asin = json_report.get('asin')
         self.ProductName = json_report.get('product-name')
         self.Condition = json_report.get('condition')
-        self.Price = json_report.get('your-price')
-        self.PerUnitVolume = json_report.get('per-unit-volume')
-        self.AfnTotal = json_report.get('afn-total-quantity')
+        self.Price = json_report.get('your-price') or 0.00
+        self.PerUnitVolume = json_report.get('per-unit-volume') or 0.00
+        self.AfnTotal = json_report.get('afn-total-quantity') or 0
         self.MfnListingExists = json_report.get('mfn-listing-exists')
-        self.MfnFulfillable = json_report.get('mfn-fulfillable-quantity')
+        self.MfnFulfillable = json_report.get('mfn-fulfillable-quantity') or 0
         self.AfnListingExists = json_report.get('afn-listing-exists')
-        self.AfnWarehouse = json_report.get('afn-warehouse-quantity')
-        self.AfnFulfillable = json_report.get('afn-fulfillable-quantity')
-        self.AfnUnsellable = json_report.get('afn-unsellable-quantity')
-        self.AfnReserved = json_report.get('afn-reserved-quantity')
-        self.AfnInboundWorking = json_report.get('afn-inbound-working-quantity')
-        self.AfnInboundShipped = json_report.get('afn-inbound-shipped-quantity')
-        self.AfnInboundReceiving = json_report.get('afn-inbound-receiving-quantity')
+        self.AfnWarehouse = json_report.get('afn-warehouse-quantity') or 0
+        self.AfnFulfillable = json_report.get('afn-fulfillable-quantity') or 0
+        self.AfnUnsellable = json_report.get('afn-unsellable-quantity') or 0
+        self.AfnReserved = json_report.get('afn-reserved-quantity') or 0
+        self.AfnInboundWorking = json_report.get('afn-inbound-working-quantity') or 0
+        self.AfnInboundShipped = json_report.get('afn-inbound-shipped-quantity') or 0
+        self.AfnInboundReceiving = json_report.get('afn-inbound-receiving-quantity') or 0
 
 
 class AprFBAAllOrders(Base):
@@ -80,14 +80,14 @@ class AprFBAAllOrders(Base):
     ShipStatus = Column(String(20))
     Quantity = Column(Integer)
     Currency = Column(String(10))
-    Price = Column(Float(6,2))
-    Tax = Column(Float(6,2))
-    ShippingPrice = Column(Float(6,2))
-    ShippingTax = Column(Float(6,2))
-    GiftWrapPrice = Column(Float(6,2))
-    GiftWrapTax = Column(Float(6,2))
-    Promotion = Column(Float(6,2))
-    ShippingPromotion = Column(Float(6,2))
+    Price = Column(DECIMAL(6,2))
+    Tax = Column(DECIMAL(6,2))
+    ShippingPrice = Column(DECIMAL(6,2))
+    ShippingTax = Column(DECIMAL(6,2))
+    GiftWrapPrice = Column(DECIMAL(6,2))
+    GiftWrapTax = Column(DECIMAL(6,2))
+    Promotion = Column(DECIMAL(6,2))
+    ShippingPromotion = Column(DECIMAL(6,2))
     ShipPostalCode = Column(String(20))
     ShipCountry = Column(String(10))
     ShipState = Column(String(20))
@@ -110,14 +110,14 @@ class AprFBAAllOrders(Base):
         self.ShipStatus = json_report.get('item-status')
         self.Quantity = json_report.get('quantity')
         self.Currency = json_report.get('currency')
-        self.Price = json_report.get('item-price')
-        self.Tax = json_report.get('item-tax')
-        self.ShippingPrice = json_report.get('shipping-price')
-        self.ShippingTax = json_report.get('shipping-tax')
-        self.GiftWrapPrice = json_report.get('gift-wrap-price')
-        self.GiftWrapTax = json_report.get('gift-wrap-tax')
-        self.Promotion = json_report.get('item-promotion-discount')
-        self.ShippingPromotion = json_report.get('ship-promotion-discount')
+        self.Price = json_report.get('item-price') or 0.00
+        self.Tax = json_report.get('item-tax') or 0.00
+        self.ShippingPrice = json_report.get('shipping-price') or 0.00
+        self.ShippingTax = json_report.get('shipping-tax') or 0.00
+        self.GiftWrapPrice = json_report.get('gift-wrap-price') or 0.00
+        self.GiftWrapTax = json_report.get('gift-wrap-tax') or 0.00
+        self.Promotion = json_report.get('item-promotion-discount') or 0.00
+        self.ShippingPromotion = json_report.get('ship-promotion-discount') or 0.00
         self.ShipPostalCode = json_report.get('ship-postal-code')
         self.ShipCountry = json_report.get('ship-country')
         self.ShipState = json_report.get('ship-state')

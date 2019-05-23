@@ -29,6 +29,8 @@ class DownloadFbaInventory(DownloadReports):
                                     .get('ReportRequestInfo') \
                                     .get('GeneratedReportId')
                     return rp_id
+                elif rpq_status == '_CANCELLED_':
+                    time.sleep(1785)                    #  实时更新报告每30分钟不超过一次
 
     def download_run(self, rp_client, params):
         reports = self.request_report(rp_client, params)
@@ -39,20 +41,25 @@ class DownloadFbaInventory(DownloadReports):
         rp_id = self.get_report_id(rp_client, rpq_id)
         rp = self.get_report(rp_client, rp_id)
 
-        rp_date = params.get('StartDate')
+        rp_date = datetime.datetime.strptime(params.get('StartDate').strftime('%Y-%m-%d'), '%Y-%m-%d')
         self.add_report_to_sql(rp_date, 'US', rp)
 
 
 if __name__ == '__main__':
 
-    report_date = datetime.datetime.now()
-    report_date -= datetime.timedelta(days=2)
-    params = {
-        "StartDate": report_date,
-        "ReportType": "_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_"
-    }
-    fba_inventory = DownloadFbaInventory()
-    report_client = fba_inventory.get_reports_client()
-    fba_inventory.download_run(report_client, params)
+    day = 2
+    while day <= 92:
+        report_date = datetime.datetime.now()
+        report_date -= datetime.timedelta(days=day)
+        params = {
+            "StartDate": report_date,
+            "ReportType": "_GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_"#_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_"#
+        }
+        fba_inventory = DownloadFbaInventory()
+        report_client = fba_inventory.get_reports_client()
+        fba_inventory.download_run(report_client, params)
+
+        time.sleep(60)    # 报告请求每分钟一个
+        day += 1
 
 

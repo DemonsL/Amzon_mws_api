@@ -26,5 +26,6 @@ def flat_to_json(data):
     datas = []
     for d_value in resp_list[1:]:
         datas.append(dict(zip(d_key, d_value)))
-    data_json = json.dumps(datas)
+    json_str = json.dumps(datas)
+    data_json = json.loads(json_str)
     return data_json
