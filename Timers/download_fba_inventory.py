@@ -1,4 +1,6 @@
 # coding: utf-8
+import sys
+sys.path.append('../')
 import time
 import datetime
 from Models import reports
