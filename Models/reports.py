@@ -1,5 +1,6 @@
 # coding: utf-8
 from Config import db
+from Common import common
 from sqlalchemy import Column, String, Integer, Float, DECIMAL, DateTime, create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -100,8 +101,8 @@ class AprFBAAllOrders(Base):
         self.MerchantOrderId = json_report.get('merchant-order-id')
         self.Sku = json_report.get('sku')
         self.Asin = json_report.get('asin')
-        self.OrderDate = json_report.get('purchase-date')
-        self.LastUpdateDate = json_report.get('last-updated-date')
+        self.OrderDate = common.iso_time_to_dsttime(json_report.get('purchase-date'))
+        self.LastUpdateDate = common.iso_time_to_dsttime(json_report.get('last-updated-date'))
         self.OrderStatus = json_report.get('order-status')
         self.SaleChannel = json_report.get('sales-channel')
         self.FulfillmentChannel = json_report.get('fulfillment-channel')
