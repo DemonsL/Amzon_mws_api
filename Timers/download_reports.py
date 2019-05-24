@@ -77,7 +77,6 @@ class DownloadReports:
             time.sleep(25)              # 请求报告列表每45秒一次
 
     def download_run(self, rp_client, params):
-        print(datetime.datetime.now().strftime(self.time_fmt), ' Download report starting...')
         while True:
             reports = self.request_report(rp_client, params)
             rpq_id = reports.get('RequestReportResponse') \
@@ -98,9 +97,9 @@ class DownloadReports:
                     self.add_report_to_sql(tb_name, mkp.upper(), rp)
                 else:
                     self.add_report_to_sql(tb_name, mkp.upper(), rp, rp_date)
-                break
+                return
             time.sleep(1800)      # 请求报告取消状态时，每30分钟一次
-        print(datetime.datetime.now().strftime(self.time_fmt), ' Download report end!')
+
 
 
 
@@ -110,11 +109,12 @@ def get_reports_client(mkp):
     secret_key = mws_config.client.get('secret_key')
     seller_id = mws_config.client.get('seller_id')
     auth_token = mws_config.client.get('auth_token')
-    host = mws_config.endpoint.get(mkp)
+    host = mws_config.endpoint.get('us')
     mkp_id = mws_config.marketplace.get(mkp)
     return Reports(access_key, secret_key, seller_id, auth_token, host, mkp_id)
 
 def download_report_start(rp_type):
+    print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), ' Download report starting...')
     day = 2
     while day <= 92:
         report_date = datetime.datetime.now()
@@ -131,8 +131,9 @@ def download_report_start(rp_type):
             dw_report = DownloadReports()
             dw_report.download_run(report_client, params)
 
-            time.sleep(60)  # 报告请求每分钟一个
+            time.sleep(60)  # 报告请求每分钟一次
         day += 1
+    print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), ' Download report end!')
 
 
 if __name__ == '__main__':
