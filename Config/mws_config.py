@@ -18,5 +18,6 @@ marketplace = {
 
 report_type = {
     '_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_': 'AprFBAMangeInventory',
-    '_GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_': 'AprFBAAllOrders'
+    '_GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_': 'AprFBAAllOrders',
+    '_GET_AMAZON_FULFILLED_SHIPMENTS_DATA_': 'AprFBAShipments'
 }
