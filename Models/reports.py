@@ -178,10 +178,10 @@ class AprFBAShipments(Base):
         self.ShipmentItemID = json_report.get('shipment-item-id')
         self.AmazonOrderItemID = json_report.get('amazon-order-item-id')
         self.MerchantOrderItemID = json_report.get('merchant-order-item-id')
-        self.PurchaseDate = json_report.get('purchase-date')
-        self.PaymentsDate = json_report.get('payments-date')
-        self.ShipmentDate = json_report.get('shipment-date')
-        self.ReportingDate = json_report.get('reporting-date')
+        self.PurchaseDate = common.iso_time_to_dsttime(json_report.get('purchase-date'))
+        self.PaymentsDate = common.iso_time_to_dsttime(json_report.get('payments-date'))
+        self.ShipmentDate = common.iso_time_to_dsttime(json_report.get('shipment-date'))
+        self.ReportingDate = common.iso_time_to_dsttime(json_report.get('reporting-date'))
         self.BuyerEmail = json_report.get('buyer-email')
         self.BuyerName = json_report.get('buyer-name')
         self.BuyerPhoneNumber = json_report.get('buyer-phone-number')
@@ -207,7 +207,7 @@ class AprFBAShipments(Base):
         self.BillAddr3 = json_report.get('bill-address-3')
         self.Carrier = json_report.get('carrier')
         self.TrackingNum = json_report.get('tracking-number')
-        self.EstimatedArrivalDate = json_report.get('estimated-arrival-date')
+        self.EstimatedArrivalDate = common.iso_time_to_dsttime(json_report.get('estimated-arrival-date'))
         self.FC = json_report.get('fulfillment-center-id')
 
 

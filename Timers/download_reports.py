@@ -9,6 +9,9 @@ from MwsApi.reports import Reports
 from Config import mws_config
 
 class DownloadReports:
+    """
+    下载报告接口
+    """
 
     time_fmt = '%Y-%m-%d %H:%M:%S'
 
@@ -93,7 +96,7 @@ class DownloadReports:
                 print(datetime.datetime.now().strftime(self.time_fmt), ' ReportDate: ', rp_date)
                 print(datetime.datetime.now().strftime(self.time_fmt), ' ReportType: ', tb_name)
                 print(datetime.datetime.now().strftime(self.time_fmt), ' Marketplace: ', mkp.upper())
-                if tb_name == 'AprFBAAllOrders':
+                if tb_name in ['AprFBAAllOrders', 'AprFBAShipments']:
                     self.add_report_to_sql(tb_name, mkp.upper(), rp)
                 else:
                     self.add_report_to_sql(tb_name, mkp.upper(), rp, rp_date)
@@ -113,7 +116,7 @@ def get_reports_client(mkp):
     mkp_id = mws_config.marketplace.get(mkp)
     return Reports(access_key, secret_key, seller_id, auth_token, host, mkp_id)
 
-def download_report_start(rp_type):
+def download_report_start(rp_type, mkp):
     print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), ' Download report starting...')
     day = 2
     while day <= 92:
@@ -124,22 +127,22 @@ def download_report_start(rp_type):
             "ReportType": rp_type,
             "table_name": mws_config.report_type.get(rp_type)
         }
+        report_client = get_reports_client(mkp)
+        params['mkp'] = mkp
+        dw_report = DownloadReports()
+        dw_report.download_run(report_client, params)
 
-        for mkp in ['us', 'ca']:
-            report_client = get_reports_client(mkp)
-            params['mkp'] = mkp
-            dw_report = DownloadReports()
-            dw_report.download_run(report_client, params)
-
-            time.sleep(60)  # 报告请求每分钟一次
+        time.sleep(60)  # 报告请求每分钟一次
         day += 1
     print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), ' Download report end!')
 
 
 if __name__ == '__main__':
 
+    marketplace = ['us', 'ca']
     dw_report_type = ['_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_',
                       '_GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_']
 
     for rp_type in dw_report_type:
-        download_report_start(rp_type)
+        for mkp in marketplace:
+            download_report_start(rp_type, mkp)
