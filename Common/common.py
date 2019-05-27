@@ -16,10 +16,11 @@ def amz_iso_time(time):
     return dt
 
 def iso_time_to_dsttime(time_str):
-    time_date = datetime.datetime.fromisoformat(time_str)
-    dst_zone = pytz.timezone('US/Pacific')
-    dsttime = time_date.astimezone(dst_zone)
-    return dsttime.strftime('%Y-%m-%d %H:%M:%S')
+    if time_str:
+        time_date = datetime.datetime.fromisoformat(time_str)
+        dst_zone = pytz.timezone('US/Pacific')
+        dsttime = time_date.astimezone(dst_zone)
+        return dsttime.strftime('%Y-%m-%d %H:%M:%S')
 
 def xml_to_json(data):
     data_dict = xmltodict.parse(data)

@@ -75,7 +75,7 @@ class DownloadReports:
                                     .get('GeneratedReportId')
                     return rp_id
                 if rpq_status == '_CANCELLED_':
-                    print(datetime.datetime.now().strftime(self.time_fmt), ' 报告取消状态，请求限制等待30分钟')
+                    print(datetime.datetime.now().strftime(self.time_fmt), ' Report is cancelled，please wait 30 minute.')
                     return False
             time.sleep(25)              # 请求报告列表每45秒一次
 
@@ -90,16 +90,15 @@ class DownloadReports:
             if rp_id:
                 rp = self.get_report(rp_client, rp_id)
 
+                print(datetime.datetime.now().strftime(self.time_fmt), ' Report add to sql...')
                 mkp = params.get('mkp')
                 tb_name = params.get('table_name')
                 rp_date = datetime.datetime.strptime(params.get('StartDate').strftime('%Y-%m-%d'), '%Y-%m-%d')
-                print(datetime.datetime.now().strftime(self.time_fmt), ' ReportDate: ', rp_date)
-                print(datetime.datetime.now().strftime(self.time_fmt), ' ReportType: ', tb_name)
-                print(datetime.datetime.now().strftime(self.time_fmt), ' Marketplace: ', mkp.upper())
                 if tb_name in ['AprFBAAllOrders', 'AprFBAShipments']:
                     self.add_report_to_sql(tb_name, mkp.upper(), rp)
                 else:
                     self.add_report_to_sql(tb_name, mkp.upper(), rp, rp_date)
+                print(datetime.datetime.now().strftime(self.time_fmt), ' Report add success!')
                 return
             time.sleep(1800)      # 请求报告取消状态时，每30分钟一次
 
@@ -117,7 +116,8 @@ def get_reports_client(mkp):
     return Reports(access_key, secret_key, seller_id, auth_token, host, mkp_id)
 
 def download_report_start(rp_type, mkp):
-    print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), ' Download report starting...')
+    time_fmt = '%Y-%m-%d %H:%M:%S'
+    print(datetime.datetime.now().strftime(time_fmt), ' Download report starting...')
     day = 2
     while day <= 92:
         report_date = datetime.datetime.now()
@@ -129,19 +129,23 @@ def download_report_start(rp_type, mkp):
         }
         report_client = get_reports_client(mkp)
         params['mkp'] = mkp
+        print(datetime.datetime.now().strftime(time_fmt), ' ReportDate: ', report_date)
+        print(datetime.datetime.now().strftime(time_fmt), ' ReportType: ', rp_type)
+        print(datetime.datetime.now().strftime(time_fmt), ' Marketplace: ', mkp.upper())
         dw_report = DownloadReports()
         dw_report.download_run(report_client, params)
 
         time.sleep(60)  # 报告请求每分钟一次
         day += 1
-    print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), ' Download report end!')
+    print(datetime.datetime.now().strftime(time_fmt), ' Download report end!')
 
 
 if __name__ == '__main__':
 
     marketplace = ['us', 'ca']
     dw_report_type = ['_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_',
-                      '_GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_']
+                      '_GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_',
+                      '_GET_AMAZON_FULFILLED_SHIPMENTS_DATA_']
 
     for rp_type in dw_report_type:
         for mkp in marketplace:
