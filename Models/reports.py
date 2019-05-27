@@ -211,6 +211,41 @@ class AprFBAShipments(Base):
         self.FC = json_report.get('fulfillment-center-id')
 
 
+class AprFBAReturn(Base):
+
+    __tablename__ = 'Apr_FBA_Return'
+
+    ID = Column(Integer, primary_key=True)
+    SnapDate = Column(DateTime)
+    Country = Column(String(10))
+    ReturnDate = Column(DateTime)
+    LPN = Column(String(50))
+    AmazonOrderId = Column(String(20))
+    Sku = Column(String(50))
+    Asin = Column(String(20))
+    ProductName  = Column(String(300))
+    ReturnQuantity = Column(Integer)
+    FC = Column(String(20))
+    ProductState = Column(String(20))
+    Reason = Column(String(100))
+    ReturnState = Column(String(40))
+    Comments = Column(String(400))
+
+    def __init__(self, SnapDate, Country, json_report):
+        self.SnapDate = SnapDate
+        self.Country = Country
+        self.ReturnDate = json_report.get('return-date')
+        self.LPN = json_report.get('license-plate-number')
+        self.AmazonOrderId = json_report.get('order-id')
+        self.Sku = json_report.get('sku')
+        self.Asin = json_report.get('asin')
+        self.ProductName = json_report.get('product-name')
+        self.ReturnQuantity = json_report.get('quantity')
+        self.FC = json_report.get('fulfillment-center-id')
+        self.ProductState = json_report.get('detailed-disposition')
+        self.Reason = json_report.get('reason')
+        self.ReturnState = json_report.get('status')
+        self.Comments = json_report.get('customer-comments')
 
 
 
