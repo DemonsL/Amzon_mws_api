@@ -304,7 +304,7 @@ class AprFBAInventoryAge(Base):
 
     def __init__(self, Country, json_report):
         self.Country = Country
-        self.SnapDate = json_report.get('snapshot-date')
+        self.SnapDate = common.iso_time_to_dsttime(json_report.get('snapshot-date'))
         self.Sku = json_report.get('sku')
         self.FnSku = json_report.get('fnsku')
         self.Asin = json_report.get('asin')
