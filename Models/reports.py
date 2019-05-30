@@ -143,7 +143,7 @@ class AprFBAShipments(Base):
     ShipmentDate = Column(DateTime)
     ReportingDate = Column(DateTime)
     BuyerEmail = Column(String(50))
-    BuyerName = Column(String(40))
+    BuyerName = Column(String(100))
     BuyerPhoneNumber = Column(String(20))
     Sku = Column(String(50))
     ProductName = Column(String(300))

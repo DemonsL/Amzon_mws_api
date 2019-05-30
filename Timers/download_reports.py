@@ -94,7 +94,7 @@ class DownloadReports:
                 mkp = params.get('mkp')
                 tb_name = params.get('table_name')
                 rp_date = datetime.datetime.strptime(params.get('StartDate').strftime('%Y-%m-%d'), '%Y-%m-%d')
-                if tb_name in ['AprFBAAllOrders', 'AprFBAShipments']:
+                if tb_name in ['AprFBAAllOrders', 'AprFBAShipments', 'AprFBAInventoryAge']:
                     self.add_report_to_sql(tb_name, mkp.upper(), rp)
                 else:
                     self.add_report_to_sql(tb_name, mkp.upper(), rp, rp_date)
@@ -118,35 +118,37 @@ def get_reports_client(mkp):
 def download_report_start(rp_type, mkp):
     time_fmt = '%Y-%m-%d %H:%M:%S'
     print(datetime.datetime.now().strftime(time_fmt), ' Download report starting...')
-    day = 2
-    while day <= 92:
-        report_date = datetime.datetime.now()
-        report_date -= datetime.timedelta(days=day)
-        params = {
-            "StartDate": report_date,
-            "ReportType": rp_type,
-            "table_name": mws_config.report_type.get(rp_type)
-        }
-        report_client = get_reports_client(mkp)
-        params['mkp'] = mkp
-        print(datetime.datetime.now().strftime(time_fmt), ' ReportDate: ', report_date)
-        print(datetime.datetime.now().strftime(time_fmt), ' ReportType: ', rp_type)
-        print(datetime.datetime.now().strftime(time_fmt), ' Marketplace: ', mkp.upper())
-        dw_report = DownloadReports()
-        dw_report.download_run(report_client, params)
 
-        time.sleep(60)  # 报告请求每分钟一次
-        day += 1
+    report_date = datetime.datetime.now()
+    report_date -= datetime.timedelta(days=2)
+    start_date = datetime.datetime.strptime(report_date.strftime('%Y-%m-%d 00:00:00'), time_fmt)
+    end_date = datetime.datetime.strptime(report_date.strftime('%Y-%m-%d 23:59:59'), time_fmt)
+    params = {
+        "StartDate": start_date,
+        "EndDate": end_date,
+        "ReportType": rp_type,
+        "table_name": mws_config.report_type.get(rp_type)
+    }
+    report_client = get_reports_client(mkp)
+    params['mkp'] = mkp
+    print(datetime.datetime.now().strftime(time_fmt), ' ReportDate: ', str(start_date) + ' - ' + str(end_date))
+    print(datetime.datetime.now().strftime(time_fmt), ' ReportType: ', rp_type)
+    print(datetime.datetime.now().strftime(time_fmt), ' Marketplace: ', mkp.upper())
+    dw_report = DownloadReports()
+    dw_report.download_run(report_client, params)
+
     print(datetime.datetime.now().strftime(time_fmt), ' Download report end!')
 
 
 if __name__ == '__main__':
 
-    marketplace = ['us', 'ca']
-    dw_report_type = ['_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_',
-                      '_GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_',
-                      '_GET_AMAZON_FULFILLED_SHIPMENTS_DATA_']
+    dw_report_type = ['_GET_AMAZON_FULFILLED_SHIPMENTS_DATA_',
+                      '_GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA_',]
+                      # '_GET_FBA_FULFILLMENT_INVENTORY_HEALTH_DATA_',
+                      # '_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_',
+                      # '_GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_',]
 
     for rp_type in dw_report_type:
-        for mkp in marketplace:
-            download_report_start(rp_type, mkp)
+        download_report_start(rp_type, 'us')
+
+        time.sleep(60)  # 报告请求每分钟一次
