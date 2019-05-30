@@ -248,9 +248,9 @@ class AprFBAReturn(Base):
         self.Comments = json_report.get('customer-comments')
 
 
-class AprFBAInventoryAge(Base):
+class AprFBAInventoryHealth(Base):
 
-    __tablename__ = 'Apr_FBA_Inventory_Age'
+    __tablename__ = 'Apr_FBA_Inventory_Health'
 
     ID = Column(Integer, primary_key=True)
     Country = Column(String(10))
