@@ -95,7 +95,8 @@ class DownloadReports:
                 mkp = params.get('mkp')
                 tb_name = params.get('table_name')
                 rp_date = datetime.datetime.strptime(datetime.datetime.now().strftime('%Y-%m-%d'), '%Y-%m-%d')
-                if tb_name in ['AprFBAAllOrders', 'AprFBAShipments', 'AprFBAInventoryAge', 'AprFBAInventoryHealth']:
+                if tb_name in ['AprFBAAllOrders', 'AprFBAShipments', 'AprFBAInventoryAge',
+                               'AprFBAInventoryHealth', 'AprFBAInventoryAge']:
                     self.add_report_to_sql(tb_name, mkp.upper(), rp)
                 else:
                     self.add_report_to_sql(tb_name, mkp.upper(), rp, rp_date)
@@ -145,9 +146,10 @@ if __name__ == '__main__':
 
     dw_report_type = ['_GET_AMAZON_FULFILLED_SHIPMENTS_DATA_',
                       '_GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA_',
-                      #'_GET_FBA_FULFILLMENT_INVENTORY_HEALTH_DATA_',]
-                      #'_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_',]
-                      '_GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_',]
+                      '_GET_FBA_INVENTORY_AGED_DATA_',
+                      '_GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_',
+                      '_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_',
+                      '_GET_FBA_FULFILLMENT_INVENTORY_HEALTH_DATA_']
 
     for rp_type in dw_report_type:
         download_report_start(rp_type, 'us')

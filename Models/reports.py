@@ -130,12 +130,12 @@ class AprFBAShipments(Base):
 
     __tablename__ = 'Apr_FBA_Shipments'
 
-    ID = Column(Integer, primary_key=True)
+    ID = Column(Integer)
     Country = Column(String(10))
     AmazonOrderId = Column(String(20))
     MerchantOrderID = Column(String(50))
     ShipmentID = Column(String(40))
-    ShipmentItemID = Column(String(40))
+    ShipmentItemID = Column(String(40), primary_key=True)
     AmazonOrderItemID = Column(String(40))
     MerchantOrderItemID = Column(String(50))
     PurchaseDate = Column(DateTime)
