@@ -353,3 +353,87 @@ class AprFBAInventoryHealth(Base):
         self.FeePerUnit = json_report.get('per-unit-volume')
 
 
+class AprFBAInventoryAge(Base):
+
+    __tablename__ = 'Apr_FBA_Inventory_Age'
+
+    ID = Column(Integer, primary_key=True)
+    Country = Column(String(10))
+    SnapDate = Column(DateTime)
+    Sku = Column(String(50))
+    FnSku = Column(String(20))
+    Asin = Column(String(20))
+    ProductName = Column(String(300))
+    Condition = Column(String(50))
+    SellableUnits = Column(Integer)
+    UnsellableUnits = Column(Integer)
+    Quarter1Units = Column(Integer)
+    Quarter2Units = Column(Integer)
+    Quarter3Units = Column(Integer)
+    Quarter4Units = Column(Integer)
+    Quarter5Units = Column(Integer)
+    Currency = Column(String(10))
+    Units6 = Column(Integer)
+    ProjectedUnits6 = Column(Integer)
+    Units12 = Column(Integer)
+    ProjectedUnits12 = Column(Integer)
+    Ship7DayUnits = Column(Integer)
+    Ship30DayUnits = Column(Integer)
+    Ship60DayUnits = Column(Integer)
+    Ship90DayUnits = Column(Integer)
+    Alert = Column(String(20))
+    YourPrice = Column(DECIMAL(6, 2))
+    SalesPrice = Column(DECIMAL(6, 2))
+    LowestPriceNew = Column(DECIMAL(6, 2))
+    LowestPriceUsed = Column(DECIMAL(6, 2))
+    RecommendedAction = Column(String(50))
+    TargetUnits = Column(Integer)
+    TargetPirce = Column(DECIMAL(6, 2))
+    TargetDos = Column(Integer)
+    TagetClearUnits = Column(Integer)
+    TargetCost = Column(DECIMAL(10, 2))
+    Dos = Column(DECIMAL(10, 2))
+    Volume = Column(DECIMAL(12, 6))
+
+    def __init__(self, Country, json_report):
+        self.Country = Country
+        self.SnapDate = common.iso_time_to_dsttime(json_report.get('snapshot-date'))
+        self.Sku = json_report.get('sku')
+        self.FnSku = json_report.get('fnsku')
+        self.Asin = json_report.get('asin')
+        self.ProductName = json_report.get('product-name')
+        self.Condition = json_report.get('condition')
+        self.SellableUnits = json_report.get('avaliable-quantity(sellable)')
+        self.UnsellableUnits = json_report.get('qty-with-removals-in-progress')
+        self.Quarter1Units = json_report.get('inv-age-0-to-90-days')
+        self.Quarter2Units = json_report.get('inv-age-91-to-180-days')
+        self.Quarter3Units = json_report.get('inv-age-181-to-270-days')
+        self.Quarter4Units = json_report.get('inv-age-271-to-365-days')
+        self.Quarter5Units = json_report.get('inv-age-365-plus-days')
+        self.Currency = json_report.get('currency')
+        self.Units6 = json_report.get('qty-to-be-charged-ltsf-6-mo')
+        self.ProjectedUnits6 = json_report.get('projected-ltsf-6-mo')
+        self.Units12 = json_report.get('qty-to-be-charged-ltsf-12-mo')
+        self.ProjectedUnits12 = json_report.get('projected-ltsf-12-mo')
+        self.Ship7DayUnits = json_report.get('units-shipped-last-7-days')
+        self.Ship30DayUnits = json_report.get('units-shipped-last-30-days')
+        self.Ship60DayUnits = json_report.get('units-shipped-last-60-days')
+        self.Ship90DayUnits = json_report.get('units-shipped-last-90-days')
+        self.Alert = json_report.get('alert')
+        self.YourPrice = json_report.get('your-price') or 0.0
+        self.SalesPrice = json_report.get('sales_price') or 0.0
+        self.LowestPriceNew = json_report.get('lowest_price_new')
+        self.LowestPriceUsed = json_report.get('lowest_price_used')
+        self.RecommendedAction = json_report.get('Recommended action')
+        self.TargetUnits = json_report.get('Healthy Inventory Level')
+        self.TargetPirce = json_report.get('Recommended sales price')
+        self.TargetDos = json_report.get('Recommended sale duration (days)')
+        self.TagetClearUnits = json_report.get('Recommended Removal Quantity')
+        self.TargetCost = json_report.get('Estimated cost savings of removal')
+        self.Dos = json_report.get('sell-through')
+        self.Volume = json_report.get('cubic-feet')
+
+
+
+
+
