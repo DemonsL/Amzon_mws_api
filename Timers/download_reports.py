@@ -89,7 +89,6 @@ class DownloadReports:
             rp_id = self.get_report_id(rp_client, rpq_id)
             if rp_id:
                 rp = self.get_report(rp_client, rp_id)
-                print(rp)
 
                 print(datetime.datetime.now().strftime(self.time_fmt), ' Report add to sql...')
                 mkp = params.get('mkp')
