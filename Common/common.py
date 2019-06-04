@@ -37,3 +37,9 @@ def flat_to_json(data):
     json_str = json.dumps(datas)
     data_json = json.loads(json_str)
     return data_json
+
+def set_param_value(param):
+    resp = param
+    if param == 'Infinite':
+        resp = 99999.9999
+    return resp
