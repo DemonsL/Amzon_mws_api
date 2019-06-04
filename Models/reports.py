@@ -357,10 +357,10 @@ class AprFBAInventoryAge(Base):
 
     __tablename__ = 'Apr_FBA_Inventory_Age'
 
-    ID = Column(Integer, primary_key=True)
-    Country = Column(String(10))
-    SnapDate = Column(DateTime)
-    Sku = Column(String(50))
+    ID = Column(Integer)
+    Country = Column(String(10), primary_key=True)
+    SnapDate = Column(DateTime, primary_key=True)
+    Sku = Column(String(50), primary_key=True)
     FnSku = Column(String(20))
     Asin = Column(String(20))
     ProductName = Column(String(300))
