@@ -1,6 +1,6 @@
 client = {
-    'access_key': 'AKIAIFO5Z55NNGTAE7EQ',
-    'secret_key': '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',
+    'access_key': 'AKIAI7AKJMNA6MVDQ7WQ',
+    'secret_key': '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',
     'seller_id': 'A13LAO8K5A3ZLL',
     'auth_token': '533644926019'
 }
