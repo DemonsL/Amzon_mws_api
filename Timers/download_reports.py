@@ -10,7 +10,7 @@ from MwsApi.reports import Reports
 from Config import mws_config
 
 formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
-file_name = '/home/develop/mwsrp_logs/{}.log'.format(datetime.date.today())
+file_name = '/home/develop/logs/mwsrp_logs/{}.log'.format(datetime.date.today())
 log = logging.getLogger()
 log.setLevel(logging.INFO)
 
