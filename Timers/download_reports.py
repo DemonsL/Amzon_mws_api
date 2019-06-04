@@ -2,18 +2,33 @@
 import sys
 sys.path.append('../')
 import time
+import logging
 import datetime
 from Models import reports
 from Common import common
 from MwsApi.reports import Reports
 from Config import mws_config
 
+formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
+file_name = '/home/develop/mwsrp_logs/{}.log'.format(datetime.date.today())
+log = logging.getLogger()
+log.setLevel(logging.INFO)
+
+
+fh = logging.FileHandler(file_name, mode='w')
+fh.setLevel(logging.DEBUG)
+fh.setFormatter(formatter)
+log.addHandler(fh)
+
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+ch.setFormatter(formatter)
+log.addHandler(ch)
+
 class DownloadReports:
     """
     下载报告接口
     """
-
-    time_fmt = '%Y-%m-%d %H:%M:%S'
 
     def request_report(self, rp_client, params):
         resp = []
@@ -21,7 +36,7 @@ class DownloadReports:
             resp_xml = rp_client.request_report(params)
             resp = common.xml_to_json(resp_xml.text)
         except Exception as e:
-            print('RequestReport Error: ', e)
+            log.info('RequestReport Error: %s', e)
         return resp
 
     def get_report_requests(self, rp_client, rpq_ids):
@@ -33,7 +48,7 @@ class DownloadReports:
             resp_xml = rp_client.get_report_request_list(params)
             resp = common.xml_to_json(resp_xml.text)
         except Exception as e:
-            print('GetReportRequestList Error: ', e)
+            log.info('GetReportRequestList Error: %s', e)
         return resp
 
     def get_report(self, rp_client, rp_id):
@@ -45,7 +60,7 @@ class DownloadReports:
             resp_flat = rp_client.get_report(params)
             resp = common.flat_to_json(resp_flat.text)
         except Exception as e:
-            print('GetReport Error: ', e)
+            log.info('GetReport Error: %s', e)
         return resp
 
     def add_report_to_sql(self, tb_name, country, report_json, snap_date=None):
@@ -68,14 +83,14 @@ class DownloadReports:
                 rpq_status = rpq_list.get('GetReportRequestListResult') \
                                      .get('ReportRequestInfo') \
                                      .get('ReportProcessingStatus')
-                print(datetime.datetime.now().strftime(self.time_fmt), ' ReportStatus: ', rpq_status)
+                log.info('ReportStatus: %s', rpq_status)
                 if rpq_status == '_DONE_':
                     rp_id = rpq_list.get('GetReportRequestListResult') \
                                     .get('ReportRequestInfo') \
                                     .get('GeneratedReportId')
                     return rp_id
                 if rpq_status == '_CANCELLED_':
-                    print(datetime.datetime.now().strftime(self.time_fmt), ' Report is cancelled，please wait 30 minute.')
+                    log.info('Report is cancelled，please wait 30 minute.')
                     return False
             time.sleep(25)              # 请求报告列表每45秒一次
 
@@ -90,16 +105,19 @@ class DownloadReports:
             if rp_id:
                 rp = self.get_report(rp_client, rp_id)
 
-                print(datetime.datetime.now().strftime(self.time_fmt), ' Report add to sql...')
+                log.info('Report add to sql...')
                 mkp = params.get('mkp')
                 tb_name = params.get('table_name')
                 rp_date = datetime.datetime.strptime(datetime.datetime.now().strftime('%Y-%m-%d'), '%Y-%m-%d')
-                if tb_name in ['AprFBAAllOrders', 'AprFBAShipments', 'AprFBAInventoryAge',
-                               'AprFBAInventoryHealth', 'AprFBAInventoryAge']:
-                    self.add_report_to_sql(tb_name, mkp.upper(), rp)
-                else:
-                    self.add_report_to_sql(tb_name, mkp.upper(), rp, rp_date)
-                print(datetime.datetime.now().strftime(self.time_fmt), ' Report add success!')
+                try:
+                    if tb_name in ['AprFBAAllOrders', 'AprFBAShipments', 'AprFBAInventoryAge',
+                                   'AprFBAInventoryHealth', 'AprFBAInventoryAge']:
+                        self.add_report_to_sql(tb_name, mkp.upper(), rp)
+                    else:
+                        self.add_report_to_sql(tb_name, mkp.upper(), rp, rp_date)
+                except Exception as e:
+                    log.info('AddSqlError: %s', e)
+                log.info('Report add success!')
                 return
             time.sleep(1800)      # 请求报告取消状态时，每30分钟一次
 
@@ -118,7 +136,7 @@ def get_reports_client(mkp):
 
 def download_report_start(rp_type, mkp):
     time_fmt = '%Y-%m-%d %H:%M:%S'
-    print(datetime.datetime.now().strftime(time_fmt), ' Download report starting...')
+    log.info('Download report starting...')
 
     report_date = datetime.datetime.now()
     report_date -= datetime.timedelta(days=2)
@@ -132,13 +150,13 @@ def download_report_start(rp_type, mkp):
     }
     report_client = get_reports_client(mkp)
     params['mkp'] = mkp
-    print(datetime.datetime.now().strftime(time_fmt), ' ReportDate: ', str(start_date) + ' - ' + str(end_date))
-    print(datetime.datetime.now().strftime(time_fmt), ' ReportType: ', rp_type)
-    print(datetime.datetime.now().strftime(time_fmt), ' Marketplace: ', mkp.upper())
+    log.info('ReportDate: %s', str(start_date) + ' - ' + str(end_date))
+    log.info('ReportType: %s', rp_type)
+    log.info('Marketplace: %s', mkp.upper())
     dw_report = DownloadReports()
     dw_report.download_run(report_client, params)
 
-    print(datetime.datetime.now().strftime(time_fmt), ' Download report end!')
+    log.info('Download report end!')
 
 
 if __name__ == '__main__':
@@ -154,3 +172,4 @@ if __name__ == '__main__':
         download_report_start(rp_type, 'us')
 
         time.sleep(60)  # 报告请求每分钟一次
+
