@@ -30,13 +30,13 @@ class Orders(MwsClient):
 
         parameters = ''
         if created_after:
-            parameters = '&CreatedAfter=' + self.params_encode(created_after)
+            parameters = '&CreatedAfter=' + self.params_encode(common.amz_iso_time(created_after))
         if last_updated_after:
-            parameters = '&LastUpdatedAfter=' + self.params_encode(last_updated_after)
+            parameters = '&LastUpdatedAfter=' + self.params_encode(common.amz_iso_time(last_updated_after))
         if created_before:
-            parameters += '&CreatedBefore=' + self.params_encode(created_before)
+            parameters += '&CreatedBefore=' + self.params_encode(common.amz_iso_time(created_before))
         if last_updated_before:
-            parameters += '&LastUpdatedBefore=' + self.params_encode(last_updated_before)
+            parameters += '&LastUpdatedBefore=' + self.params_encode(common.amz_iso_time(last_updated_before))
         if order_status:
             if order_status.find(',') == -1:
                 parameters += '&OrderStatus.Status.1=' + self.params_encode(order_status)
@@ -62,6 +62,7 @@ class Orders(MwsClient):
             parameters += '&TFMShipmentStatus=' + self.params_encode(tfm_ship_status)
         if easy_ship_status:
             parameters += '&EasyShipShipmentStatus=' + self.params_encode(easy_ship_status)
+
         return self.req_handler(http_method, action, parameters)
 
     def list_orders_by_next_token(self, params):
@@ -88,10 +89,7 @@ class Orders(MwsClient):
         action = 'ListOrderItems'
 
         order_id = params.get('AmazonOrderId')
-        if order_id.find(',') == -1:
-            parameters = '&AmazonOrderId.Id.1=' + self.params_encode(order_id)
-        else:
-            parameters = common.set_param_list(order_id, 'AmazonOrderId.Id')
+        parameters = '&AmazonOrderId=' + self.params_encode(order_id)
         return self.req_handler(http_method, action, parameters)
 
     def list_order_items_by_next_token(self, params):
@@ -104,7 +102,9 @@ class Orders(MwsClient):
 
     def req_handler(self, http_method, action, params):
         query_string = self.get_query_string(action, params, self.VERSION)
+        query_string = query_string.replace('&MarketplaceId=', '&MarketplaceId.Id.1=')
         signature = self.string_to_sign(http_method, self.URI, query_string)
         url = self.get_url(self.host, self.URI, query_string, signature)
+
         return self.excute_req(url, http_method)
 

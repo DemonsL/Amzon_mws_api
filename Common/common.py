@@ -3,6 +3,16 @@ import json
 import pytz
 import datetime
 import xmltodict
+from Config import mws_config
+
+def get_client(client_obj, mkp):
+    access_key = mws_config.client.get('access_key')
+    secret_key = mws_config.client.get('secret_key')
+    seller_id = mws_config.client.get('seller_id')
+    auth_token = mws_config.client.get('auth_token')
+    host = mws_config.endpoint.get('us')
+    mkp_id = mws_config.marketplace.get(mkp)
+    return client_obj(access_key, secret_key, seller_id, auth_token, host, mkp_id)
 
 def set_param_list(param_list, param_name):
     i, resp = 1, ''
