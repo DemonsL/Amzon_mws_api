@@ -123,17 +123,6 @@ class DownloadReports:
 
 
 
-
-
-def get_reports_client(mkp):
-    access_key = mws_config.client.get('access_key')
-    secret_key = mws_config.client.get('secret_key')
-    seller_id = mws_config.client.get('seller_id')
-    auth_token = mws_config.client.get('auth_token')
-    host = mws_config.endpoint.get('us')
-    mkp_id = mws_config.marketplace.get(mkp)
-    return Reports(access_key, secret_key, seller_id, auth_token, host, mkp_id)
-
 def download_report_start(rp_type, mkp):
     time_fmt = '%Y-%m-%d %H:%M:%S'
     log.info('Download report starting...')
@@ -148,7 +137,7 @@ def download_report_start(rp_type, mkp):
         "ReportType": rp_type,
         "table_name": mws_config.report_type.get(rp_type)
     }
-    report_client = get_reports_client(mkp)
+    report_client = common.get_client(Reports, mkp)
     params['mkp'] = mkp
     log.info('ReportDate: %s', str(start_date) + ' - ' + str(end_date))
     log.info('ReportType: %s', rp_type)
@@ -172,4 +161,5 @@ if __name__ == '__main__':
         download_report_start(rp_type, 'us')
 
         time.sleep(60)  # 报告请求每分钟一次
+
 
