@@ -25,6 +25,11 @@ def amz_iso_time(time):
     dt = datetime.datetime.strftime(time, '%Y-%m-%dT%H:%M:%SZ')
     return dt
 
+def iso_time_to_date(time_str):
+    if time_str:
+        time_date = datetime.datetime.fromisoformat(time_str)
+        return time_date
+
 def iso_time_to_dsttime(time_str):
     if time_str:
         time_date = datetime.datetime.fromisoformat(time_str)
