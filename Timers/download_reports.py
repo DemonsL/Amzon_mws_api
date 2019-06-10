@@ -128,7 +128,7 @@ def download_report_start(rp_type, mkp):
     log.info('Download report starting...')
 
     report_date = datetime.datetime.now()
-    report_date -= datetime.timedelta(days=2)
+    report_date -= datetime.timedelta(days=1)
     start_date = datetime.datetime.strptime(report_date.strftime('%Y-%m-%d 00:00:00'), time_fmt)
     end_date = datetime.datetime.strptime(report_date.strftime('%Y-%m-%d 23:59:59'), time_fmt)
     params = {
