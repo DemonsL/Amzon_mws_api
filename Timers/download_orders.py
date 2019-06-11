@@ -15,7 +15,7 @@ log = logging.getLogger()
 log.setLevel(logging.INFO)
 
 
-fh = logging.FileHandler(file_name, mode='w')
+fh = logging.FileHandler(file_name, mode='a+')
 fh.setLevel(logging.DEBUG)
 fh.setFormatter(formatter)
 log.addHandler(fh)
