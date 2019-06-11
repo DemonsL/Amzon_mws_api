@@ -162,20 +162,23 @@ def download_order_item_start(order_id, dw_meth):
 
 def download_order_start(dw_meth, order_resp, db_order):
     list_orders = order_resp.get('ListOrdersResponse').get('ListOrdersResult').get('Orders')
-    list_order = list_orders.get('Order')
-    order_next_token = list_orders.get('NextToken', None)
+    if list_orders:
+        list_order = list_orders.get('Order')
+        order_next_token = list_orders.get('NextToken', None)
 
-    for order in list_order:
-        order_id = order.get('AmazonOrderId')
-        if order_id in db_order:
-            log.info('Update order: %s', order_id)
-            dw_meth.update_order_to_sql(order_id, order)
-            download_order_item_start(order_id, dw_meth)
-        else:
-            log.info('Add order: %s', order_id)
-            dw_meth.add_order_to_sql(order)
-            download_order_item_start(order_id, dw_meth)
-    return order_next_token
+        for order in list_order:
+            order_id = order.get('AmazonOrderId')
+            if order_id in db_order:
+                log.info('Update order: %s', order_id)
+                dw_meth.update_order_to_sql(order_id, order)
+                download_order_item_start(order_id, dw_meth)
+            else:
+                log.info('Add order: %s', order_id)
+                dw_meth.add_order_to_sql(order)
+                download_order_item_start(order_id, dw_meth)
+        return order_next_token
+    else:
+        log.info('Now is no update orders')
 
 
 
