@@ -120,17 +120,17 @@ class BkAmzOrderItem(Base):
         self.ASIN = json_order_item.get('ASIN')
         self.SellerSKU = json_order_item.get('SellerSKU')
         self.Title = json_order_item.get('Title')
-        self.NumberOfItems = json_order_item.get('ProductInfo').get('NumberOfItems')
+        self.NumberOfItems = common.is_value('ProductInfo_NumberOfItems', json_order_item, 0)
         self.AmazonOrderId = order_id
         self.QuantityOrdered = json_order_item.get('QuantityOrdered')
         self.QuantityShipped = json_order_item.get('QuantityShipped')
         self.IsGift = json_order_item.get('IsGift')
-        self.ItemPrice_Amount = json_order_item.get('ItemPrice').get('Amount')
-        self.ItemPrice_CurrencyCode = json_order_item.get('ItemPrice').get('CurrencyCode')
-        self.ItemTax_Amount = json_order_item.get('ItemTax').get('Amount')
-        self.ItemTax_CurrencyCode = json_order_item.get('ItemTax').get('CurrencyCode')
-        self.PromotionDiscount_Amount = json_order_item.get('PromotionDiscount').get('Amount')
-        self.PromotionDiscount_CurrencyCode = json_order_item.get('PromotionDiscount').get('CurrencyCode')
+        self.ItemPrice_Amount = common.is_value('ItemPrice_Amount', json_order_item, 0)
+        self.ItemPrice_CurrencyCode = common.is_value('ItemPrice_CurrencyCode', json_order_item, '')
+        self.ItemTax_Amount = common.is_value('ItemTax_Amount', json_order_item, 0)
+        self.ItemTax_CurrencyCode = common.is_value('ItemTax_CurrencyCode', json_order_item, '')
+        self.PromotionDiscount_Amount = common.is_value('PromotionDiscount_Amount', json_order_item, 0)
+        self.PromotionDiscount_CurrencyCode = common.is_value('PromotionDiscount_CurrencyCode', json_order_item, '')
         self.ShippingPrice_Amount = common.is_value('ShippingPrice_Amount', json_order_item, 0)
         self.ShippingPrice_CurrencyCode = common.is_value('ShippingPrice_CurrencyCode', json_order_item, '')
         self.ShippingTax_Amount = common.is_value('ShippingTax_Amount', json_order_item, 0)
@@ -185,16 +185,16 @@ def update_order_item(json_order_item):
         'ASIN' : json_order_item.get('ASIN'),
         'SellerSKU' : json_order_item.get('SellerSKU'),
         'Title' : json_order_item.get('Title'),
-        'NumberOfItems' : json_order_item.get('ProductInfo').get('NumberOfItems'),
+        'NumberOfItems' : common.is_value('ProductInfo_NumberOfItems', json_order_item, 0),
         'QuantityOrdered' : json_order_item.get('QuantityOrdered'),
         'QuantityShipped' : json_order_item.get('QuantityShipped'),
         'IsGift' : json_order_item.get('IsGift'),
-        'ItemPrice_Amount' : json_order_item.get('ItemPrice').get('Amount'),
-        'ItemPrice_CurrencyCode' : json_order_item.get('ItemPrice').get('CurrencyCode'),
-        'ItemTax_Amount' : json_order_item.get('ItemTax').get('Amount'),
-        'ItemTax_CurrencyCode' : json_order_item.get('ItemTax').get('CurrencyCode'),
-        'PromotionDiscount_Amount' : json_order_item.get('PromotionDiscount').get('Amount'),
-        'PromotionDiscount_CurrencyCode' : json_order_item.get('PromotionDiscount').get('CurrencyCode'),
+        'ItemPrice_Amount' : common.is_value('ItemPrice_Amount', json_order_item, 0),
+        'ItemPrice_CurrencyCode' : common.is_value('ItemPrice_CurrencyCode', json_order_item, ''),
+        'ItemTax_Amount' : common.is_value('ItemTax_Amount', json_order_item, 0),
+        'ItemTax_CurrencyCode' : common.is_value('ItemTax_CurrencyCode', json_order_item, ''),
+        'PromotionDiscount_Amount' : common.is_value('PromotionDiscount_Amount', json_order_item, 0),
+        'PromotionDiscount_CurrencyCode' : common.is_value('PromotionDiscount_CurrencyCode', json_order_item, ''),
         'ShippingPrice_Amount' : common.is_value('ShippingPrice_Amount', json_order_item, 0),
         'ShippingPrice_CurrencyCode' : common.is_value('ShippingPrice_CurrencyCode', json_order_item, ''),
         'ShippingTax_Amount' : common.is_value('ShippingTax_Amount', json_order_item, 0),
