@@ -14,7 +14,7 @@ DBSession = sessionmaker(bind=engine)
 Base = declarative_base()
 class BkAmzOrder(Base):
 
-    __tablename__ = 'BK_AMZ_ORDER'
+    __tablename__ = 'Apr_Order'
 
     AmazonOrderId = Column(String(20), primary_key=True)
     BuyerEmail = Column(String(50))
@@ -90,7 +90,7 @@ class BkAmzOrder(Base):
 
 class BkAmzOrderItem(Base):
 
-    __tablename__ = 'BK_AMZ_ORDER_ITEM'
+    __tablename__ = 'Apr_Order_Item'
 
     OrderItemId = Column(String(40), primary_key=True)
     ASIN = Column(String(40))
