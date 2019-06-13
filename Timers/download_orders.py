@@ -186,25 +186,26 @@ def download_order_start(dw_meth, order_resp, db_order):
 if __name__ == '__main__':
 
     dw_orders = DownloadOrders()
-    od_client = common.get_client(Orders, 'us')
+    for mkp in ['us', 'ca']:
+        od_client = common.get_client(Orders, mkp)
 
-    last_update = dw_orders.select_last_order_time()
-    local_time = common.dsttime_to_utctime(str(last_update))
-    order_params = {
-        'LastUpdatedAfter': local_time
-    }
-    log.info(order_params)
-    db_order_ids = dw_orders.select_order_ids()
-
-    order_resp = dw_orders.list_orders(od_client, order_params)
-    next_token = download_order_start(dw_orders, order_resp, db_order_ids)
-    while next_token:
-        next_params = {
-            'NextToken': next_token
+        last_update = dw_orders.select_last_order_time()
+        local_time = common.dsttime_to_utctime(str(last_update))
+        order_params = {
+            'LastUpdatedAfter': local_time
         }
-        log.info(next_params)
-        next_resp = dw_orders.list_orders_by_next_token(od_client, next_params)
-        next_token = download_order_start(dw_orders, next_resp, db_order_ids)
+        log.info(order_params)
+        db_order_ids = dw_orders.select_order_ids()
+
+        order_resp = dw_orders.list_orders(od_client, order_params)
+        next_token = download_order_start(dw_orders, order_resp, db_order_ids)
+        while next_token:
+            next_params = {
+                'NextToken': next_token
+            }
+            log.info(next_params)
+            next_resp = dw_orders.list_orders_by_next_token(od_client, next_params)
+            next_token = download_order_start(dw_orders, next_resp, db_order_ids)
 
 
 
