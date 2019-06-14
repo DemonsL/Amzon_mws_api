@@ -15,10 +15,10 @@ log = logging.getLogger()
 log.setLevel(logging.INFO)
 
 
-# fh = logging.FileHandler(file_name, mode='a+')
-# fh.setLevel(logging.DEBUG)
-# fh.setFormatter(formatter)
-# log.addHandler(fh)
+fh = logging.FileHandler(file_name, mode='a+')
+fh.setLevel(logging.DEBUG)
+fh.setFormatter(formatter)
+log.addHandler(fh)
 
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
