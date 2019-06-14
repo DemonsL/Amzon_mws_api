@@ -15,10 +15,10 @@ log = logging.getLogger()
 log.setLevel(logging.INFO)
 
 
-fh = logging.FileHandler(file_name, mode='a+')
-fh.setLevel(logging.DEBUG)
-fh.setFormatter(formatter)
-log.addHandler(fh)
+# fh = logging.FileHandler(file_name, mode='a+')
+# fh.setLevel(logging.DEBUG)
+# fh.setFormatter(formatter)
+# log.addHandler(fh)
 
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
@@ -74,21 +74,21 @@ class DownloadOrders:
 
     def select_last_order_time(self):
         session = orders.DBSession()
-        field_name = orders.BkAmzOrder.LastUpdateDate
-        last_order_time = session.query(orders.BkAmzOrder, field_name).order_by(desc(field_name)).limit(1).one()
+        field_name = orders.AprOrder.LastUpdateDate
+        last_order_time = session.query(orders.AprOrder, field_name).order_by(desc(field_name)).limit(1).one()
         session.close()
         return last_order_time[1]
 
     def select_order_ids(self):
         session = orders.DBSession()
-        order_ids = session.query(orders.BkAmzOrder, orders.BkAmzOrder.AmazonOrderId).all()
+        order_ids = session.query(orders.AprOrder, orders.AprOrder.AmazonOrderId).all()
         order_ids = [order_id[1] for order_id in order_ids]
         session.close()
         return order_ids
 
     def select_order_item_ids(self, order_id):
         session = orders.DBSession()
-        item_ids = session.query(orders.BkAmzOrderItem, orders.BkAmzOrderItem.OrderItemId) \
+        item_ids = session.query(orders.AprOrderItem, orders.AprOrderItem.OrderItemId) \
                           .filter_by(AmazonOrderId=order_id).all()
         item_ids = [item_id[1] for item_id in item_ids]
         session.close()
@@ -96,34 +96,34 @@ class DownloadOrders:
 
     def select_order_time(self, order_id):
         session = orders.DBSession()
-        order_time = session.query(orders.BkAmzOrder, orders.BkAmzOrder.PurchaseDate) \
+        order_time = session.query(orders.AprOrder, orders.AprOrder.PurchaseDate) \
                             .filter_by(AmazonOrderId=order_id).one()
         session.close()
         return order_time[1]
 
     def add_order_to_sql(self, json_order):
         session = orders.DBSession()
-        session.add(orders.BkAmzOrder(json_order))
+        session.add(orders.AprOrder(json_order))
         session.commit()
         session.close()
 
     def add_order_item(self, order_id, order_time, json_order_item):
         session = orders.DBSession()
-        session.add(orders.BkAmzOrderItem(order_id, order_time, json_order_item)),
+        session.add(orders.AprOrderItem(order_id, order_time, json_order_item)),
         session.commit()
         session.close()
 
     def update_order_to_sql(self, order_id, json_order):
         session = orders.DBSession()
-        session.query(orders.BkAmzOrder).filter_by(AmazonOrderId=order_id) \
-                                        .update(orders.update_order(json_order))
+        session.query(orders.AprOrder).filter_by(AmazonOrderId=order_id) \
+                                      .update(orders.update_order(json_order))
         session.commit()
         session.close()
 
     def update_order_item(self, item_id, json_order_item):
         session = orders.DBSession()
-        session.query(orders.BkAmzOrderItem).filter_by(OrderItemId=item_id) \
-                                            .update(orders.update_order_item(json_order_item))
+        session.query(orders.AprOrderItem).filter_by(OrderItemId=item_id) \
+                                          .update(orders.update_order_item(json_order_item))
         session.commit()
         session.close()
 
