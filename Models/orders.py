@@ -155,7 +155,7 @@ class AprOrderItem(Base):
         self.CurTax = common.is_value('ItemTax_CurrencyCode', json_order_item, '')
         self.CurRevCOD = common.is_value('CODFee_CurrencyCode', json_order_item, '')
         self.CurDiscountCOD = common.is_value('CODFeeDiscount_CurrencyCode', json_order_item, '')
-        self.PromotionIds = common.is_value('PromotionIds_PromotionId', json_order_item, '')
+        self.PromotionIds = str(common.is_value('PromotionIds_PromotionId', json_order_item, ''))
         self.GiftText = json_order_item.get('GiftMessageText')
 
 
@@ -225,7 +225,7 @@ def update_order_item(json_order_item):
         'CurTax': common.is_value('ItemTax_CurrencyCode', json_order_item, ''),
         'CurRevCOD': common.is_value('CODFee_CurrencyCode', json_order_item, ''),
         'CurDiscountCOD': common.is_value('CODFeeDiscount_CurrencyCode', json_order_item, ''),
-        'PromotionIds': json_order_item.get('PromotionIds'),
+        'PromotionIds': str(common.is_value('PromotionIds_PromotionId', json_order_item, '')),
         'GiftText': json_order_item.get('GiftMessageText')
     }
     return update_field
