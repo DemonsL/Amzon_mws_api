@@ -123,7 +123,7 @@ class AprOrderItem(Base):
     CurRevCOD = Column(String(10))
     CurDiscountCOD = Column(String(10))
     PromotionIds = Column(String(200))
-    GiftText = Column(String(200))
+    GiftText = Column(String(400))
 
     def __init__(self, order_id, order_time, json_order_item):
         self.OrderItemId = json_order_item.get('OrderItemId')
