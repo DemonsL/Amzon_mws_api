@@ -2,6 +2,7 @@
 import sys
 sys.path.append('../')
 import logging
+import time
 import datetime
 from Common import common
 from Models import orders
@@ -150,16 +151,15 @@ def download_order_item_start(order_id, dw_meth):
     db_order_item_ids = dw_meth.select_order_item_ids(order_id)
     order_item_resp = dw_meth.list_order_items(od_client, order_item_params)
 
-    if order_item_resp:
-        order_items = order_item_resp.get('ListOrderItemsResponse') \
-                                     .get('ListOrderItemsResult') \
-                                     .get('OrderItems') \
-                                     .get('OrderItem')
-        if not isinstance(order_items, list):
-            order_item_to_sql(dw_meth, order_items, db_order_item_ids, order_id, order_time)
-        else:
-            for order_item in order_items:
-                order_item_to_sql(dw_meth, order_item, db_order_item_ids, order_id, order_time)
+    order_items = order_item_resp.get('ListOrderItemsResponse') \
+                                 .get('ListOrderItemsResult') \
+                                 .get('OrderItems') \
+                                 .get('OrderItem')
+    if not isinstance(order_items, list):
+        order_item_to_sql(dw_meth, order_items, db_order_item_ids, order_id, order_time)
+    else:
+        for order_item in order_items:
+            order_item_to_sql(dw_meth, order_item, db_order_item_ids, order_id, order_time)
 
 def download_order_start(dw_meth, order_resp, db_order):
     list_orders = order_resp.get('ListOrdersResponse').get('ListOrdersResult').get('Orders')
@@ -172,10 +172,12 @@ def download_order_start(dw_meth, order_resp, db_order):
             if order_id in db_order:
                 log.info('Update order: %s', order_id)
                 dw_meth.update_order_to_sql(order_id, order)
+                time.sleep(3)
                 download_order_item_start(order_id, dw_meth)
             else:
                 log.info('Add order: %s', order_id)
                 dw_meth.add_order_to_sql(order)
+                time.sleep(3)
                 download_order_item_start(order_id, dw_meth)
         return order_next_token
     else:
