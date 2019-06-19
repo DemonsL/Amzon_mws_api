@@ -208,6 +208,10 @@ if __name__ == '__main__':
             next_token = download_order_start(dw_orders, next_resp, db_order_ids)
 
 
+    # 19:00下载历史order items
+    if datetime.datetime.today().time().hour == 19:
+        sys.exit(0)
+
 
 
 
