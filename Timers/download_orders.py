@@ -150,15 +150,16 @@ def download_order_item_start(order_id, dw_meth):
     db_order_item_ids = dw_meth.select_order_item_ids(order_id)
     order_item_resp = dw_meth.list_order_items(od_client, order_item_params)
 
-    order_items = order_item_resp.get('ListOrderItemsResponse') \
-                                 .get('ListOrderItemsResult') \
-                                 .get('OrderItems') \
-                                 .get('OrderItem')
-    if not isinstance(order_items, list):
-        order_item_to_sql(dw_meth, order_items, db_order_item_ids, order_id, order_time)
-    else:
-        for order_item in order_items:
-            order_item_to_sql(dw_meth, order_item, db_order_item_ids, order_id, order_time)
+    if order_item_resp:
+        order_items = order_item_resp.get('ListOrderItemsResponse') \
+                                     .get('ListOrderItemsResult') \
+                                     .get('OrderItems') \
+                                     .get('OrderItem')
+        if not isinstance(order_items, list):
+            order_item_to_sql(dw_meth, order_items, db_order_item_ids, order_id, order_time)
+        else:
+            for order_item in order_items:
+                order_item_to_sql(dw_meth, order_item, db_order_item_ids, order_id, order_time)
 
 def download_order_start(dw_meth, order_resp, db_order):
     list_orders = order_resp.get('ListOrdersResponse').get('ListOrdersResult').get('Orders')
