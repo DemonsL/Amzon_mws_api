@@ -227,7 +227,7 @@ if __name__ == '__main__':
             download_order_item_start(order_id, dw_orders)
 
         # 8:00下载每日订单数据
-        if datetime.datetime.today().time().hour == 8:
+        if 8 < datetime.datetime.today().time().hour < 19:
             sys.exit(0)
 
     log.info('order_item end!')
