@@ -164,12 +164,12 @@ def download_order_item_start(order_id, dw_meth):
 def order_to_sql(dw_meth, db_order, list_order, order_next_token):
     for order in list_order:
         order_id = order.get('AmazonOrderId')
-        if order_id not in db_order:
-            #     log.info('Update order: %s', order_id)
-            #     dw_meth.update_order_to_sql(order_id, order)
-            #     time.sleep(3)
-            #     download_order_item_start(order_id, dw_meth)
-            # else:
+        if order_id in db_order:
+            log.info('Update order: %s', order_id)
+            dw_meth.update_order_to_sql(order_id, order)
+            time.sleep(3)
+            download_order_item_start(order_id, dw_meth)
+        else:
             log.info('Add order: %s', order_id)
             dw_meth.add_order_to_sql(order)
             time.sleep(3)
@@ -208,7 +208,7 @@ if __name__ == '__main__':
         for mkp in ['us', 'ca']:
             od_client = common.get_client(Orders, mkp)
 
-            last_update = '2019-06-14 00:00:00'#dw_orders.select_last_order_time()
+            last_update = dw_orders.select_last_order_time()
             local_time = common.dsttime_to_utctime(str(last_update))
             order_params = {
                 'LastUpdatedAfter': local_time
