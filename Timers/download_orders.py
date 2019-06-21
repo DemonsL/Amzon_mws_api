@@ -161,27 +161,38 @@ def download_order_item_start(order_id, dw_meth):
         for order_item in order_items:
             order_item_to_sql(dw_meth, order_item, db_order_item_ids, order_id, order_time)
 
-def download_order_start(dw_meth, order_resp, db_order):
-    list_orders = order_resp.get('ListOrdersResponse').get('ListOrdersResult').get('Orders')
-    if list_orders:
-        list_order = list_orders.get('Order')
-        order_next_token = list_orders.get('NextToken', None)
+def order_to_sql(dw_meth, db_order, list_order, order_next_token):
+    for order in list_order:
+        order_id = order.get('AmazonOrderId')
+        if order_id not in db_order:
+            #     log.info('Update order: %s', order_id)
+            #     dw_meth.update_order_to_sql(order_id, order)
+            #     time.sleep(3)
+            #     download_order_item_start(order_id, dw_meth)
+            # else:
+            log.info('Add order: %s', order_id)
+            dw_meth.add_order_to_sql(order)
+            time.sleep(3)
+            download_order_item_start(order_id, dw_meth)
+    return order_next_token
 
-        for order in list_order:
-            order_id = order.get('AmazonOrderId')
-            if order_id in db_order:
-                log.info('Update order: %s', order_id)
-                dw_meth.update_order_to_sql(order_id, order)
-                time.sleep(3)
-                download_order_item_start(order_id, dw_meth)
-            else:
-                log.info('Add order: %s', order_id)
-                dw_meth.add_order_to_sql(order)
-                time.sleep(3)
-                download_order_item_start(order_id, dw_meth)
-        return order_next_token
+def download_order_start(dw_meth, order_resp, db_order, next=False):
+    if not next:
+        list_orders = order_resp.get('ListOrdersResponse').get('ListOrdersResult').get('Orders')
+        if list_orders:
+            list_order = list_orders.get('Order')
+            order_next_token = order_resp.get('ListOrdersResponse').get('ListOrdersResult').get('NextToken', None)
+            return order_to_sql(dw_meth, db_order, list_order, order_next_token)
+        else:
+            log.info('Now is no update orders')
     else:
-        log.info('Now is no update orders')
+        list_orders = order_resp.get('ListOrdersByNextTokenResponse').get('ListOrdersByNextTokenResult').get('Orders')
+        if list_orders:
+            list_order = list_orders.get('Order')
+            order_next_token = order_resp.get('ListOrdersByNextTokenResponse').get('ListOrdersByNextTokenResult').get('NextToken', None)
+            return order_to_sql(dw_meth, db_order, list_order, order_next_token)
+        else:
+            log.info('Now is no update orders')
 
 
 
@@ -197,15 +208,15 @@ if __name__ == '__main__':
         for mkp in ['us', 'ca']:
             od_client = common.get_client(Orders, mkp)
 
-            last_update = dw_orders.select_last_order_time()
+            last_update = '2019-06-14 00:00:00'#dw_orders.select_last_order_time()
             local_time = common.dsttime_to_utctime(str(last_update))
             order_params = {
                 'LastUpdatedAfter': local_time
             }
-            log.info(order_params)
-            db_order_ids = dw_orders.select_order_ids()
+            log.info('%s, %s', order_params, mkp)
 
             order_resp = dw_orders.list_orders(od_client, order_params)
+            db_order_ids = dw_orders.select_order_ids()
             next_token = download_order_start(dw_orders, order_resp, db_order_ids)
             while next_token:
                 next_params = {
@@ -213,8 +224,7 @@ if __name__ == '__main__':
                 }
                 log.info(next_params)
                 next_resp = dw_orders.list_orders_by_next_token(od_client, next_params)
-                next_token = download_order_start(dw_orders, next_resp, db_order_ids)
-
+                next_token = download_order_start(dw_orders, next_resp, db_order_ids, True)
 
 
 
