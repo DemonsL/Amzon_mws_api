@@ -108,29 +108,45 @@ class DownloadOrders:
 
     def add_order_to_sql(self, json_order):
         session = orders.DBSession()
-        session.add(orders.AprOrder(json_order))
-        session.commit()
-        session.close()
+        try:
+            session.add(orders.AprOrder(json_order))
+            session.commit()
+        except Exception as e:
+            log.error('AddOrderError: %s', e)
+        finally:
+            session.close()
 
     def add_order_item(self, order_id, order_time, json_order_item):
         session = orders.DBSession()
-        session.add(orders.AprOrderItem(order_id, order_time, json_order_item)),
-        session.commit()
-        session.close()
+        try:
+            session.add(orders.AprOrderItem(order_id, order_time, json_order_item)),
+            session.commit()
+        except Exception as e:
+            log.error('AddOrderItemError: %s', e)
+        finally:
+            session.close()
 
     def update_order_to_sql(self, order_id, json_order):
         session = orders.DBSession()
-        session.query(orders.AprOrder).filter_by(AmazonOrderId=order_id) \
-                                      .update(orders.update_order(json_order))
-        session.commit()
-        session.close()
+        try:
+            session.query(orders.AprOrder).filter_by(AmazonOrderId=order_id) \
+                                          .update(orders.update_order(json_order))
+            session.commit()
+        except Exception as e:
+            log.error('UpdateOrderError: %s', e)
+        finally:
+            session.close()
 
     def update_order_item(self, item_id, json_order_item):
         session = orders.DBSession()
-        session.query(orders.AprOrderItem).filter_by(OrderItemId=item_id) \
-                                          .update(orders.update_order_item(json_order_item))
-        session.commit()
-        session.close()
+        try:
+            session.query(orders.AprOrderItem).filter_by(OrderItemId=item_id) \
+                                              .update(orders.update_order_item(json_order_item))
+            session.commit()
+        except Exception as e:
+            log.error('UpdateOrderItemError: %s', e)
+        finally:
+            session.close()
 
 
 
@@ -241,6 +257,7 @@ if __name__ == '__main__':
             'LastUpdatedAfter': local_time
         }
         db_order_ids = dw_orders.select_order_ids(last_update)
+
         for mkp in ['us', 'ca']:
             od_client = common.get_client(Orders, mkp)
             log.info('%s, %s', order_params, mkp)
