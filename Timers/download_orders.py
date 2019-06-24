@@ -85,8 +85,7 @@ class DownloadOrders:
         order_date_from = order_date - datetime.timedelta(days=30)  # 获取前30天订单，判断是否更新
         session = orders.DBSession()
         order_ids = session.query(orders.AprOrder, orders.AprOrder.AmazonOrderId)\
-                           .filter(and_(orders.AprOrder.LastUpdateDate>order_date_from,
-                                        orders.AprOrder.LastUpdateDate<order_date)).all()
+                           .filter(orders.AprOrder.LastUpdateDate>order_date_from).all()
         order_ids = [order_id[1] for order_id in order_ids]
         session.close()
         return order_ids
