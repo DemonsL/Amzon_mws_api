@@ -7,7 +7,7 @@ import datetime
 from Common import common
 from Models import orders
 from MwsApi.orders import Orders
-from sqlalchemy import desc
+from sqlalchemy import desc , and_
 
 
 formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
@@ -73,6 +73,7 @@ class DownloadOrders:
             log.error('ListOrderItemsByNextTokenError: %s', e)
         return resp
 
+    # 数据库的操作
     def select_last_order_time(self):
         session = orders.DBSession()
         field_name = orders.AprOrder.LastUpdateDate
@@ -80,9 +81,12 @@ class DownloadOrders:
         session.close()
         return last_order_time[1]
 
-    def select_order_ids(self):
+    def select_order_ids(self, order_date):
+        order_date_from = order_date - datetime.timedelta(days=30)  # 获取前30天订单，判断是否更新
         session = orders.DBSession()
-        order_ids = session.query(orders.AprOrder, orders.AprOrder.AmazonOrderId).all()
+        order_ids = session.query(orders.AprOrder, orders.AprOrder.AmazonOrderId)\
+                           .filter(and_(orders.AprOrder.LastUpdateDate>order_date_from,
+                                        orders.AprOrder.LastUpdateDate<order_date)).all()
         order_ids = [order_id[1] for order_id in order_ids]
         session.close()
         return order_ids
@@ -143,6 +147,31 @@ def order_item_to_sql(dw_meth, order_item, db_order_item, order_id, order_time):
         log.info('Add order item: %s', order_item_id)
         dw_meth.add_order_item(order_id, order_time, order_item)
 
+def order_item_next_token(order_item_resp, dw_meth, db_order_item_ids, order_id, order_time, next=False):
+    if not next:
+        order_items = order_item_resp.get('ListOrderItemsResponse') \
+                                     .get('ListOrderItemsResult') \
+                                     .get('OrderItems') \
+                                     .get('OrderItem')
+        item_next_token = order_item_resp.get('ListOrderItemsResponse') \
+                                     .get('ListOrderItemsResult') \
+                                     .get('NextToken')
+    else:
+        order_items = order_item_resp.get('ListOrderItemsByNextTokenResponse ') \
+                                     .get('ListOrderItemsByNextTokenResult') \
+                                     .get('OrderItems') \
+                                     .get('OrderItem')
+        item_next_token = order_item_resp.get('ListOrderItemsByNextTokenResponse') \
+                                         .get('ListOrderItemsByNextTokenResult') \
+                                         .get('NextToken')
+    if not isinstance(order_items, list):
+        order_item_to_sql(dw_meth, order_items, db_order_item_ids, order_id, order_time)
+    else:
+        for order_item in order_items:
+            order_item_to_sql(dw_meth, order_item, db_order_item_ids, order_id, order_time)
+    return item_next_token
+
+
 def download_order_item_start(order_id, dw_meth):
     order_item_params = {
         'AmazonOrderId': order_id
@@ -151,15 +180,15 @@ def download_order_item_start(order_id, dw_meth):
     db_order_item_ids = dw_meth.select_order_item_ids(order_id)
     order_item_resp = dw_meth.list_order_items(od_client, order_item_params)
 
-    order_items = order_item_resp.get('ListOrderItemsResponse') \
-                                 .get('ListOrderItemsResult') \
-                                 .get('OrderItems') \
-                                 .get('OrderItem')
-    if not isinstance(order_items, list):
-        order_item_to_sql(dw_meth, order_items, db_order_item_ids, order_id, order_time)
-    else:
-        for order_item in order_items:
-            order_item_to_sql(dw_meth, order_item, db_order_item_ids, order_id, order_time)
+    item_next_token = order_item_next_token(order_item_resp, dw_meth, db_order_item_ids, order_id, order_time)
+    while item_next_token:
+        item_next_params = {
+            'NextToken': item_next_token
+        }
+        log.info('ItemNextToken: %s', item_next_params)
+        item_next_resp = dw_meth.list_order_items_by_next_token(od_client, item_next_params)
+        item_next_token = order_item_next_token(item_next_resp, dw_meth, db_order_item_ids, order_id, order_time)
+        time.sleep(3)
 
 def order_to_sql(dw_meth, db_order, list_order, order_next_token):
     for order in list_order:
@@ -205,18 +234,18 @@ if __name__ == '__main__':
     else:
 
         dw_orders = DownloadOrders()
+
+        last_update = dw_orders.select_last_order_time()
+        local_time = common.dsttime_to_utctime(str(last_update))
+        order_params = {
+            'LastUpdatedAfter': local_time
+        }
+        db_order_ids = dw_orders.select_order_ids(last_update)
         for mkp in ['us', 'ca']:
             od_client = common.get_client(Orders, mkp)
-
-            last_update = dw_orders.select_last_order_time()
-            local_time = common.dsttime_to_utctime(str(last_update))
-            order_params = {
-                'LastUpdatedAfter': local_time
-            }
             log.info('%s, %s', order_params, mkp)
 
             order_resp = dw_orders.list_orders(od_client, order_params)
-            db_order_ids = dw_orders.select_order_ids()
             next_token = download_order_start(dw_orders, order_resp, db_order_ids)
             while next_token:
                 next_params = {
@@ -226,12 +255,3 @@ if __name__ == '__main__':
                 next_resp = dw_orders.list_orders_by_next_token(od_client, next_params)
                 next_token = download_order_start(dw_orders, next_resp, db_order_ids, True)
                 time.sleep(60) # 每分钟请求一次
-
-
-
-
-
-
-
-
-
