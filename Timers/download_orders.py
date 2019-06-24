@@ -225,6 +225,9 @@ if __name__ == '__main__':
                 log.info(next_params)
                 next_resp = dw_orders.list_orders_by_next_token(od_client, next_params)
                 next_token = download_order_start(dw_orders, next_resp, db_order_ids, True)
+                time.sleep(60) # 每分钟请求一次
+
+
 
 
 
