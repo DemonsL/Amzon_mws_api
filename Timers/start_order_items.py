@@ -218,7 +218,7 @@ if __name__ == '__main__':
 
     log.info('order_item start...')
     od_client = common.get_client(Orders, 'us')
-    db_order_ids = dw_orders.select_order_ids('2019-05-01 00:00:00')
+    db_order_ids = dw_orders.select_order_ids('2019-04-01 00:00:00')
     db_order_ids_item = dw_orders.select_order_ids_by_items()
     log.info('order_count: %s', len(db_order_ids))
     for order_id in db_order_ids:
