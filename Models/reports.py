@@ -215,12 +215,12 @@ class AprFBAReturn(Base):
 
     __tablename__ = 'Apr_FBA_Return'
 
-    ID = Column(Integer, primary_key=True)
+    ID = Column(Integer)
     SnapDate = Column(DateTime)
     Country = Column(String(10))
     ReturnDate = Column(DateTime)
-    LPN = Column(String(50))
-    AmazonOrderId = Column(String(20))
+    LPN = Column(String(50), primary_key=True)
+    AmazonOrderId = Column(String(20), primary_key=True)
     Sku = Column(String(50))
     Asin = Column(String(20))
     ProductName  = Column(String(300))
