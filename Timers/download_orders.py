@@ -243,31 +243,26 @@ def download_order_start(dw_meth, order_resp, db_order, next=False):
 
 if __name__ == '__main__':
 
-    # 19:00开始下载历史order items
-    if not (8 < datetime.datetime.today().time().hour < 19):
-        sys.exit(0)
-    else:
+    dw_orders = DownloadOrders()
 
-        dw_orders = DownloadOrders()
+    last_update = dw_orders.select_last_order_time()
+    local_time = common.dsttime_to_utctime(str(last_update))
+    order_params = {
+        'LastUpdatedAfter': local_time
+    }
+    db_order_ids = dw_orders.select_order_ids(last_update)
 
-        last_update = dw_orders.select_last_order_time()
-        local_time = common.dsttime_to_utctime(str(last_update))
-        order_params = {
-            'LastUpdatedAfter': local_time
-        }
-        db_order_ids = dw_orders.select_order_ids(last_update)
+    for mkp in ['us', 'ca']:
+        od_client = common.get_client(Orders, mkp)
+        log.info('%s, %s', order_params, mkp)
 
-        for mkp in ['us', 'ca']:
-            od_client = common.get_client(Orders, mkp)
-            log.info('%s, %s', order_params, mkp)
-
-            order_resp = dw_orders.list_orders(od_client, order_params)
-            next_token = download_order_start(dw_orders, order_resp, db_order_ids)
-            while next_token:
-                next_params = {
-                    'NextToken': next_token
-                }
-                log.info(next_params)
-                next_resp = dw_orders.list_orders_by_next_token(od_client, next_params)
-                next_token = download_order_start(dw_orders, next_resp, db_order_ids, True)
-                time.sleep(60) # 每分钟请求一次
+        order_resp = dw_orders.list_orders(od_client, order_params)
+        next_token = download_order_start(dw_orders, order_resp, db_order_ids)
+        while next_token:
+            next_params = {
+                'NextToken': next_token
+            }
+            log.info(next_params)
+            next_resp = dw_orders.list_orders_by_next_token(od_client, next_params)
+            next_token = download_order_start(dw_orders, next_resp, db_order_ids, True)
+            time.sleep(60) # 每分钟请求一次
