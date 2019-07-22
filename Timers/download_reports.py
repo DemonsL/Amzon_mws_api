@@ -15,10 +15,10 @@ log = logging.getLogger()
 log.setLevel(logging.INFO)
 
 
-fh = logging.FileHandler(file_name, mode='a+')
-fh.setLevel(logging.DEBUG)
-fh.setFormatter(formatter)
-log.addHandler(fh)
+# fh = logging.FileHandler(file_name, mode='a+')
+# fh.setLevel(logging.DEBUG)
+# fh.setFormatter(formatter)
+# log.addHandler(fh)
 
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
@@ -89,7 +89,7 @@ class DownloadReports:
                                     .get('ReportRequestInfo') \
                                     .get('GeneratedReportId')
                     return rp_id
-                if rpq_status == '_CANCELLED_':
+                if rpq_status in ['_CANCELLED_', '_DONE_NO_DATA_']:
                     log.info('Report is cancelled，please wait 30 minute.')
                     return False
             time.sleep(25)              # 请求报告列表每45秒一次
@@ -128,7 +128,7 @@ def download_report_start(rp_type, mkp):
     log.info('Download report starting...')
 
     report_date = datetime.datetime.now()
-    report_date -= datetime.timedelta(days=1)
+    report_date -= datetime.timedelta(days=3)
     start_date = datetime.datetime.strptime(report_date.strftime('%Y-%m-%d 00:00:00'), time_fmt)
     end_date = datetime.datetime.strptime(report_date.strftime('%Y-%m-%d 23:59:59'), time_fmt)
     params = {
