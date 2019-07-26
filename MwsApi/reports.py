@@ -182,7 +182,7 @@ class Reports(MwsClient):
         action = 'GetReportListByNextToken'
 
         next_token = params.get('NextToken')
-        parameters = '&NextToken=' + next_token
+        parameters = '&NextToken=' + self.params_encode(next_token)
         return self.req_handler(http_method, action, parameters)
 
     def get_report_count(self, params):
