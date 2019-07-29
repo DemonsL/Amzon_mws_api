@@ -89,9 +89,11 @@ class DownloadReports:
                                     .get('ReportRequestInfo') \
                                     .get('GeneratedReportId')
                     return rp_id
-                if rpq_status in ['_CANCELLED_', '_DONE_NO_DATA_']:
+                if rpq_status == '_CANCELLED_':
                     log.info('Report is cancelled，please wait 30 minute.')
                     return False
+                if rpq_status == '_DONE_NO_DATA_':
+                    return rpq_status
             time.sleep(25)              # 请求报告列表每45秒一次
 
     def download_run(self, rp_client, params):
@@ -103,6 +105,8 @@ class DownloadReports:
                             .get('ReportRequestId')
             rp_id = self.get_report_id(rp_client, rpq_id)
             if rp_id:
+                if rp_id == '_DONE_NO_DATA_':
+                    return
                 rp = self.get_report(rp_client, rp_id)
 
                 if params.get('ReportType') == '_GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA_':
