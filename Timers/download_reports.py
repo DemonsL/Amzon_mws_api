@@ -143,14 +143,15 @@ def download_report_start(rp_type, mkp):
     start_date = datetime.datetime.strptime(report_date.strftime('%Y-%m-%d 00:00:00'), time_fmt)
     end_date = datetime.datetime.strptime(report_date.strftime('%Y-%m-%d 23:59:59'), time_fmt)
     params = {
-        "StartDate": start_date,
-        "EndDate": end_date,
+        "StartDate": common.dsttime_to_localtime(start_date),
+        "EndDate": common.dsttime_to_localtime(end_date),
         "ReportType": rp_type,
         "table_name": mws_config.report_type.get(rp_type)
     }
     report_client = common.get_client(Reports, mkp)
     params['mkp'] = mkp
     log.info('ReportDate: %s', str(start_date) + ' - ' + str(end_date))
+    log.info(params)
     log.info('ReportType: %s', rp_type)
     log.info('Marketplace: %s', mkp.upper())
     dw_report = DownloadReports()

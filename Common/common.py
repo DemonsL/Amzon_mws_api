@@ -56,6 +56,13 @@ def utctime_to_dsttime(time_str):
         us_time = utc_date.astimezone(us_zone)
         return us_time
 
+def dsttime_to_localtime(time_date):
+    if time_date:
+        us_date = pytz.timezone('US/Pacific').localize(time_date)
+        utc_zone = pytz.timezone('Asia/Shanghai')
+        utctime = us_date.astimezone(utc_zone)
+        return utctime
+
 def xml_to_json(data):
     data_dict = xmltodict.parse(data)
     json_str = json.dumps(data_dict)
