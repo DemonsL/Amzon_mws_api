@@ -138,8 +138,11 @@ def download_report_start(rp_type, mkp):
     time_fmt = '%Y-%m-%d %H:%M:%S'
     log.info('Download report starting...')
 
+    delay_day = 1
+    if rp_type == '_GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA_':
+        delay_day = 2
     report_date = datetime.datetime.now()
-    report_date -= datetime.timedelta(days=1)
+    report_date -= datetime.timedelta(days=delay_day)
     start_date = datetime.datetime.strptime(report_date.strftime('%Y-%m-%d 00:00:00'), time_fmt)
     end_date = datetime.datetime.strptime(report_date.strftime('%Y-%m-%d 23:59:59'), time_fmt)
     params = {
