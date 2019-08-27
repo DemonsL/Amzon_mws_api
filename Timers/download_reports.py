@@ -109,16 +109,17 @@ class DownloadReports:
                     return
                 rp = self.get_report(rp_client, rp_id)
 
-                if params.get('ReportType') == '_GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA_':
-                    log.info('Report fba_return bak')
-                    rp_return_name = '/home/develop/Mws_reports/fba_return/{}.json'.format(
-                                     str(params.get('StartDate')).split(' ')[0])
-                    with open(rp_return_name, 'w', encoding='utf-8') as f:
-                        f.write(str(rp))
+                tb_name = params.get('table_name')
+                log.info('Report fba_return bak')
+                rp_return_name = '/home/develop/Mws_reports/{f_path}/{f_name}.json'.format(
+                                 f_path=tb_name,
+                                 f_name=str(params.get('StartDate')).split(' ')[0])
+                with open(rp_return_name, 'w', encoding='utf-8') as f:
+                    f.write(str(rp))
 
                 log.info('Report add to sql...')
                 mkp = params.get('mkp')
-                tb_name = params.get('table_name')
+
                 rp_date = datetime.datetime.strptime(datetime.datetime.now().strftime('%Y-%m-%d'), '%Y-%m-%d')
                 try:
                     if tb_name in ['AprFBAAllOrders', 'AprFBAShipments', 'AprFBAInventoryAge',
