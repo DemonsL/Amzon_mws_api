@@ -179,3 +179,12 @@ if __name__ == '__main__':
         time.sleep(60)  # 报告请求每分钟一次
 
 
+
+
+    # 添加数据库异常时，可直接从备份文件添加到数据库
+    # with open('/home/develop/Mws_reports/AprFBAShipments/2019-08-28.json', 'r', encoding='utf-8') as f:
+    #     rp = eval(f.read())
+    #     dw = DownloadReports()
+    #     dw.add_report_to_sql('AprFBAShipments', 'US', rp)
+
+
