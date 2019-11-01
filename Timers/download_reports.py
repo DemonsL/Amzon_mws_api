@@ -123,7 +123,7 @@ class DownloadReports:
                 rp_date = datetime.datetime.strptime(datetime.datetime.now().strftime('%Y-%m-%d'), '%Y-%m-%d')
                 try:
                     if tb_name in ['AprFBAAllOrders', 'AprFBAShipments', 'AprFBAInventoryAge',
-                                   'AprFBAInventoryHealth', 'AprFBAInventoryAge']:
+                                   'AprFBAInventoryHealth', 'AprFBAInventoryAge', 'AprFBALongFee']:
                         self.add_report_to_sql(tb_name, mkp.upper(), rp)
                     else:
                         self.add_report_to_sql(tb_name, mkp.upper(), rp, rp_date)
@@ -142,10 +142,18 @@ def download_report_start(rp_type, mkp):
     delay_day = 1
     if rp_type == '_GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA_':
         delay_day = 2
+    if rp_type == '_GET_FBA_FULFILLMENT_LONGTERM_STORAGE_FEE_CHARGES_DATA_':
+        delay_day = 15
     report_date = datetime.datetime.now()
     report_date -= datetime.timedelta(days=delay_day)
     start_date = datetime.datetime.strptime(report_date.strftime('%Y-%m-%d 00:00:00'), time_fmt)
     end_date = datetime.datetime.strptime(report_date.strftime('%Y-%m-%d 23:59:59'), time_fmt)
+    # FBA长期仓储费每月16号下载一次
+    if rp_type == '_GET_FBA_FULFILLMENT_LONGTERM_STORAGE_FEE_CHARGES_DATA_':
+        if datetime.datetime.now().date().day != 16:
+            return
+        else:
+            end_date = datetime.datetime.now()
     params = {
         "StartDate": common.dsttime_to_localtime(start_date),
         "EndDate": common.dsttime_to_localtime(end_date),
@@ -171,7 +179,8 @@ if __name__ == '__main__':
                       '_GET_FBA_INVENTORY_AGED_DATA_',
                       '_GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_',
                       '_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_',
-                      '_GET_FBA_FULFILLMENT_INVENTORY_HEALTH_DATA_']
+                      '_GET_FBA_FULFILLMENT_INVENTORY_HEALTH_DATA_',
+                      '_GET_FBA_FULFILLMENT_LONGTERM_STORAGE_FEE_CHARGES_DATA_']
 
     for rp_type in dw_report_type:
         download_report_start(rp_type, 'us')

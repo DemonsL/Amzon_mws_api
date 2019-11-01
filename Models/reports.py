@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 from Config import db
 from Common import common
 from sqlalchemy import Column, String, Integer, Float, DECIMAL, DateTime, create_engine
@@ -432,6 +433,141 @@ class AprFBAInventoryAge(Base):
         self.TargetCost = json_report.get('Estimated cost savings of removal')
         self.Dos = json_report.get('sell-through')
         self.Volume = json_report.get('cubic-feet')
+
+
+class AprFBALongFee(Base):
+
+    __tablename__ = 'Apr_FBA_Long_Fee'
+
+    ID = Column(Integer)
+    Country = Column(String(10), primary_key=True)
+    Months = Column(String(6), primary_key=True)
+    SnapDate = Column(DateTime)
+    Sku = Column(String(50), primary_key=True)
+    Asin = Column(String(20))
+    ProductName = Column(String(300))
+    Condition = Column(String(50))
+    Units = Column(Integer)
+    Fee = Column(DECIMAL(10, 2))
+    Volume = Column(DECIMAL(10, 4))
+
+    def __init__(self, cn, json_report):
+        self.Country = json_report.get('country')
+        self.SnapDate = datetime.datetime.strptime(json_report.get('snapshot-date').split('T')[0], '%Y-%m-%d')
+        self.Months = datetime.datetime.strftime(self.SnapDate, '%Y%m')
+        self.Sku = json_report.get('sku')
+        self.Asin = json_report.get('asin')
+        self.ProductName = json_report.get('product-name')
+        self.Condition = json_report.get('condition')
+        self.Units = int(json_report.get('qty-charged-12-mo-long-term-storage-fee'))
+        self.Fee = float(json_report.get('12-mo-long-terms-storage-fee'))
+        self.Volume = float(json_report.get('per-unit-volume'))
+
+
+
+# class AprSettlementDetail(Base):
+#
+#     __tablename__ = 'Apr_Settlement_Detail'
+#
+#     OrderItemId = Column(String(20))
+#     AmazonOrderId = Column(String(20))
+#     SettlementID = Column(String(15))
+#     ReportType = Column(String(10))
+#     Sku = Column(String(50))
+#     Unit = Column(Integer)
+#     Rev = Column(DECIMAL(10, 2))
+#     RevShipping = Column(DECIMAL(10, 2))
+#     RevGiftWrap = Column(DECIMAL(10, 2))
+#     PromotionRev = Column(DECIMAL(10, 2))
+#     PromotionShipping = Column(DECIMAL(10, 2))
+#     RevTax = Column(DECIMAL(10, 2))
+#     FeeTaxRev = Column(DECIMAL(10, 2))
+#     FeeTaxShipping = Column(DECIMAL(10, 2))
+#     FeeTaxGiftWrap = Column(DECIMAL(10, 2))
+#     FeeShippingChargeback = Column(DECIMAL(10, 2))
+#     FeeFBA = Column(DECIMAL(10, 2))
+#     Commission = Column(DECIMAL(10, 2))
+#     CurRev = Column(String(10))
+#     CurRevShipping = Column(String(10))
+#     CurRevGiftWrap = Column(String(10))
+#     CurPromotionRev = Column(String(10))
+#     CurPromotionShipping = Column(String(10))
+#     CurRevTax = Column(String(10))
+#     CurFeeTaxRev = Column(String(10))
+#     CurFeeTaxShipping = Column(String(10))
+#     CurFeeTaxGiftWrap = Column(String(10))
+#     CurFeeShippingChargeback = Column(String(10))
+#     CurFeeFBA = Column(String(10))
+#     CurCommission = Column(String(10))
+#
+#     def __init__(self, settle_id, json_report):
+#         order_item_price = self.get_order_item(json_report, 'ItemPrice')
+#         order_item_fees = self.get_order_item(json_report, 'ItemFees')
+#         order_promotion = self.get_order_item(json_report, 'Promotion')
+#
+#         self.OrderItemId = json_report.get('Fulfillment').get('Item').get('AmazonOrderItemCode')
+#         self.AmazonOrderId = json_report.get('AmazonOrderID')
+#         self.SettlementID = settle_id
+#         self.ReportType = json_report.get('')
+#         self.Sku = json_report.get('Fulfillment').get('Item').get('SKU')
+#         self.Unit = json_report.get('Fulfillment').get('Item').get('Quantity')
+#         self.Rev = order_item_price.get('Principal')[1]
+#         self.RevShipping = json_report.get('')
+#         self.RevGiftWrap = json_report.get('')
+#         self.PromotionRev = order_promotion.get('Principal')[1] if order_promotion.get('Principal') else 0.0
+#         self.PromotionShipping = order_promotion.get('Shipping')[1] if order_promotion.get('Principal') else 0.0
+#         self.RevTax = order_item_price.get('Tax')[1] if order_item_price.get('Tax') else 0.0
+#         self.FeeTaxRev = order_item_price.get('MarketplaceFacilitatorTax-Principal')[1] \
+#                                           if order_item_price.get('MarketplaceFacilitatorTax-Principal') \
+#                                           else 0.0
+#         self.FeeTaxShipping = order_item_price.get('MarketplaceFacilitatorTax-Shipping')[1] \
+#                                                if order_item_price.get('MarketplaceFacilitatorTax-Shipping') \
+#                                                else 0.0
+#         self.FeeTaxGiftWrap = json_report.get('')
+#         self.FeeShippingChargeback = json_report.get('')
+#         self.FeeFBA = order_item_fees.get('FBAPerUnitFulfillmentFee')[1] \
+#                                       if order_item_fees.get('FBAPerUnitFulfillmentFee') \
+#                                       else 0.0
+#         self.Commission = order_item_fees.get('Commission')[1] if order_item_fees.get('Commission') else 0.0
+#         self.CurRev = json_report.get('')
+#         self.CurRevShipping = json_report.get('')
+#         self.CurRevGiftWrap = json_report.get('')
+#         self.CurPromotionRev = json_report.get('')
+#         self.CurPromotionShipping = json_report.get('')
+#         self.CurRevTax = json_report.get('')
+#         self.CurFeeTaxRev = json_report.get('')
+#         self.CurFeeTaxShipping = json_report.get('')
+#         self.CurFeeTaxGiftWrap = json_report.get('')
+#         self.CurFeeShippingChargeback = json_report.get('')
+#         self.CurFeeFBA = json_report.get('')
+#         self.CurCommission = json_report.get('')
+#
+#     def get_order_item(self, rp, item_type):
+#         order_item = {}
+#         if item_type == 'ItemPrice':
+#             component = rp.get('Fulfillment').get('Item').get('ItemPrice').get('Component')
+#         elif item_type == 'ItemFees':
+#             component = rp.get('Fulfillment').get('Item').get('ItemFees').get('Fee')
+#         else:
+#             component = rp.get('Fulfillment').get('Item').get('Promotion')
+#
+#         if isinstance(component, dict):
+#             self.order_item_to_dict(order_item, component)
+#         elif isinstance(component, list):
+#             for comp in component:
+#                 self.order_item_to_dict(order_item, comp)
+#         return order_item
+#
+#     def order_item_to_dict(self, order_item, item_dict):
+#         item = {}
+#         i_type = item_dict.get('Type')
+#         currency = item_dict.get('Amount').get('@currency')
+#         price = item_dict.get('Amount').get('#text')
+#         item[i_type] = (currency, price)
+#         return order_item.update(item)
+
+
+
 
 
 
