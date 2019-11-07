@@ -166,12 +166,17 @@ if __name__ == '__main__':
         ranks = pd_resp.get('GetCompetitivePricingForASINResponse') \
                            .get('GetCompetitivePricingForASINResult') \
                            .get('Product').get('SalesRankings').get('SalesRank')
+        list_rank = []
+        if not isinstance(ranks, list):
+            list_rank.append(ranks)
+        else:
+            list_rank = ranks
         if us_date != last_rank_date:
             log.info('Add asin_rank: %s to sql...' % asin)
-            dw_products.add_ranks('US', us_time, asin, ranks)
+            dw_products.add_ranks('US', us_time, asin, list_rank)
         else:
             log.info('Update asin_rank: %s to sql...' % asin)
-            dw_products.update_rank('US', us_time, asin, ranks)
+            dw_products.update_rank('US', us_time, asin, list_rank)
     log.info('End download asin_rank!')
 
 
