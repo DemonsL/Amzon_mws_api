@@ -173,7 +173,7 @@ if __name__ == '__main__':
         else:
             list_rank = ranks
         last_rank_date = dw_products.get_rank_date(asin)
-        if us_date != last_rank_date:
+        if us_date != str(last_rank_date):
             log.info('Add asin_rank: %s to sql...' % asin)
             dw_products.add_ranks('US', us_time, asin, list_rank)
         else:
