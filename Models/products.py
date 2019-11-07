@@ -1,6 +1,5 @@
 # coding: utf-8
 from Config import db
-from Common import common
 from sqlalchemy import Column, String, Integer, Float, DECIMAL, DateTime, create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base

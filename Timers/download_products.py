@@ -1,7 +1,6 @@
 # coding: utf-8
 import os, sys
 sys.path.append('../')
-import time
 import logging
 import datetime
 from Common import common
@@ -143,6 +142,7 @@ if __name__ == '__main__':
 
     now = datetime.datetime.now()
     us_time = common.iso_time_to_dsttime(str(now))
+    us_date = us_time.split(' ')[0]
     pd_client = common.get_client(Products, 'us')
 
     dw_products = DownloadProducts()
@@ -157,7 +157,7 @@ if __name__ == '__main__':
         # 备份文件
         bak_file_name = '/home/develop/Mws_reports/{f_path}/{f_name}.json'.format(
                         f_path='GetCompetitivePricingForASIN',
-                        f_name=us_time + '_' + asin)
+                        f_name=us_date + '_' + asin)
         if not os.path.exists(bak_file_name):
             with open(bak_file_name, 'w', encoding='utf-8') as f:
                 f.write(str(pd_resp))
@@ -166,11 +166,11 @@ if __name__ == '__main__':
         ranks = pd_resp.get('GetCompetitivePricingForASINResponse') \
                            .get('GetCompetitivePricingForASINResult') \
                            .get('Product').get('SalesRankings').get('SalesRank')
-        if us_time.split(' ')[0] != last_rank_date:
-            log.info('Add asin_rank to sql...')
+        if us_date != last_rank_date:
+            log.info('Add asin_rank: %s to sql...' % asin)
             dw_products.add_ranks('US', us_time, asin, ranks)
         else:
-            log.info('Update asin_rank to sql...')
+            log.info('Update asin_rank: %s to sql...' % asin)
             dw_products.update_rank('US', us_time, asin, ranks)
     log.info('End download asin_rank!')
 
