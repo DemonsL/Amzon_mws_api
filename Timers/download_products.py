@@ -169,15 +169,22 @@ if __name__ == '__main__':
             with open(bak_file_name, 'w', encoding='utf-8') as f:
                 f.write(str(pd_resp))
             log.info('Baking today asin_rank file...')
-        # 数据入库
+        # 数据下载
         ranks = pd_resp.get('GetCompetitivePricingForASINResponse') \
                            .get('GetCompetitivePricingForASINResult') \
-                           .get('Product').get('SalesRankings').get('SalesRank')
+                           .get('Product').get('SalesRankings')
+        # ---没排名的Asin
+        if not ranks:
+            ranks = [{'wireless_display_on_website': 0}]
+        else:
+            ranks = ranks.get('SalesRank')
+        # ---只有单个排名
         list_rank = []
         if not isinstance(ranks, list):
             list_rank.append(ranks)
         else:
             list_rank = ranks
+        # 数据入库
         last_rank_date = dw_products.get_rank_date(asin)
         if us_date != str(last_rank_date):
             log.info('Add asin_rank: %s to sql...' % asin)
