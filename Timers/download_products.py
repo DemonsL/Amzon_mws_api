@@ -105,10 +105,12 @@ class DownloadProducts:
         session.close()
         return asins
 
-    def get_rank_date(self):
+    def get_rank_date(self, asin):
         session = products.DBSession()
         field_name = products.AprAsinRank.SnapDate
-        last_date = session.query(products.AprAsinRank, field_name).order_by(desc(field_name)).limit(1).one()
+        last_date = session.query(products.AprAsinRank, field_name).filter_by(Asin=asin) \
+                                                                   .order_by(desc(field_name)) \
+                                                                   .limit(1).one()
         session.close()
         return last_date[1]
 
@@ -147,7 +149,6 @@ if __name__ == '__main__':
 
     dw_products = DownloadProducts()
     p_asins = dw_products.get_asins()
-    last_rank_date = dw_products.get_rank_date()
     log.info('Start download asin_rank... | Asins: %s' % len(p_asins))
     for asin in p_asins:
         params = {
@@ -171,6 +172,7 @@ if __name__ == '__main__':
             list_rank.append(ranks)
         else:
             list_rank = ranks
+        last_rank_date = dw_products.get_rank_date(asin)
         if us_date != last_rank_date:
             log.info('Add asin_rank: %s to sql...' % asin)
             dw_products.add_ranks('US', us_time, asin, list_rank)
