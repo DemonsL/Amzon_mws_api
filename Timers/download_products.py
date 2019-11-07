@@ -175,7 +175,8 @@ if __name__ == '__main__':
                            .get('Product').get('SalesRankings')
         # ---没排名的Asin
         if not ranks:
-            ranks = [{'wireless_display_on_website': 0}]
+            ranks = [{'ProductCategoryId': 'wireless_display_on_website',
+                      'Rank': 0}]
         else:
             ranks = ranks.get('SalesRank')
         # ---只有单个排名
