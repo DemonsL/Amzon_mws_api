@@ -108,11 +108,17 @@ class DownloadProducts:
     def get_rank_date(self, asin):
         session = products.DBSession()
         field_name = products.AprAsinRank.SnapDate
-        last_date = session.query(products.AprAsinRank, field_name).filter_by(Asin=asin) \
-                                                                   .order_by(desc(field_name)) \
-                                                                   .limit(1).one()
-        session.close()
-        return last_date[1]
+        try:
+            last_date = session.query(products.AprAsinRank, field_name).filter_by(Asin=asin) \
+                                                                       .order_by(desc(field_name)) \
+                                                                       .limit(1).one()
+            return last_date[1]
+        except Exception as e:
+            log.info('GetRankDate: %s' % e)
+            return ''
+        finally:
+            session.close()
+
 
     def add_ranks(self, country, snap_date, p_asin, json_rank):
         session = products.DBSession()
