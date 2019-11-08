@@ -189,10 +189,10 @@ if __name__ == '__main__':
         last_rank_date = dw_products.get_rank_date(asin)
         if us_date != str(last_rank_date):
             log.info('Add asin_rank: %s to sql...' % asin)
-            dw_products.add_ranks('US', us_time, asin, list_rank)
+            dw_products.add_ranks('US', us_date, asin, list_rank)
         else:
             log.info('Update asin_rank: %s to sql...' % asin)
-            dw_products.update_rank('US', us_time, asin, list_rank)
+            dw_products.update_rank('US', us_date, asin, list_rank)
     log.info('End download asin_rank!')
 
 

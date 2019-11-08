@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 from Config import db
 from sqlalchemy import Column, String, Integer, Float, DECIMAL, DateTime, create_engine
 from sqlalchemy.orm import sessionmaker
@@ -123,8 +124,8 @@ class AprAsinRank(Base):
 
     def __init__(self, country, snap_date, asin, json_rank):
         self.Country = country
-        self.SnapDate = snap_date.split(' ')[0]
+        self.SnapDate = snap_date
         self.Asin = asin
         self.CategoryId = json_rank.get('ProductCategoryId')
         self.Rank = json_rank.get('Rank')
-        self.LastUpdate = snap_date
+        self.LastUpdate = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
