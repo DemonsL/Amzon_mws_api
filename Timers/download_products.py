@@ -134,11 +134,11 @@ class DownloadProducts:
             p_rank = rank.get('Rank')
             session.query(products.AprAsinRank).filter(and_(and_(and_(
                                                         products.AprAsinRank.Country == country,
-                                                        products.AprAsinRank.SnapDate == snap_date.split(' ')[0]),
+                                                        products.AprAsinRank.SnapDate == snap_date),
                                                         products.AprAsinRank.Asin == p_asin),
                                                         products.AprAsinRank.CategoryId == p_id)) \
                                                .update({'Rank': p_rank,
-                                                        'LastUpdate': snap_date})
+                                                        'LastUpdate': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})
         session.commit()
         session.close()
 
