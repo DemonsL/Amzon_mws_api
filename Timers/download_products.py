@@ -185,6 +185,7 @@ if __name__ == '__main__':
             list_rank.append(ranks)
         else:
             list_rank = ranks
+        log.info('ranks: %s' % list_rank)
         # 数据入库
         last_rank_date = dw_products.get_rank_date(asin)
         if us_date != str(last_rank_date):
