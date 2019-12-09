@@ -1,7 +1,7 @@
 # coding: utf-8
 import datetime
 from Config import db
-from sqlalchemy import Column, String, Integer, Float, DECIMAL, DateTime, create_engine
+from sqlalchemy import Column, String, Integer, DECIMAL, DateTime, create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -12,97 +12,6 @@ DBSession = sessionmaker(bind=engine)
 
 
 Base = declarative_base()
-class AprProductInfo(Base):
-
-    __tablename__ = 'Apr_Product_Info'
-
-    ID = Column(Integer, primary_key=True)
-    Country = Column(String(10))
-    SnapDate = Column(DateTime)
-    Asin = Column(String(20))
-    Brand = Column(String(100))
-    ListingDate = Column(DateTime)
-    ParentAsin = Column(String(50))
-    Color = Column(String(50))
-    MaterialType = Column(String(100))
-    Pack = Column(Integer)
-    Size = Column(String(200))
-    Title = Column(String(200))
-    SmallImageUrl = Column(String(200))
-    Length = Column(DECIMAL(6,1))
-    Width = Column(DECIMAL(6,1))
-    Height = Column(DECIMAL(6,1))
-    Weight = Column(DECIMAL(6,2))
-    PackageLength = Column(DECIMAL(6,1))
-    PackageWidth = Column(DECIMAL(6,1))
-    PackageHeight = Column(DECIMAL(6,1))
-    PackageWeight = Column(DECIMAL(6,2))
-
-    def __init__(self, country, snap_date, json_product):
-        self.Country = country
-        self.SnapDate = snap_date
-        self.Asin = json_product.get('Identifiers').get('MarketplaceASIN').get('ASIN')
-        self.Brand = json_product.get('AttributeSets').get('ns2:ItemAttributes').get('ns2:Brand')
-        self.ListingDate = json_product.get('AttributeSets').get('ns2:ItemAttributes').get('ns2:ReleaseDate')
-        self.ParentAsin = json_product.get('Relationships').get('VariationParent').get('Identifiers') \
-                                      .get('MarketplaceASIN').get('ASIN') if not json_product.get('Relationships') else ''
-        self.Color = json_product.get('AttributeSets').get('ItemAttributes').get('ns2:Color')
-        self.MaterialType = json_product.get('AttributeSets').get('ItemAttributes').get('ns2:MaterialType')
-        self.Pack = json_product.get('AttributeSets').get('ItemAttributes').get('ns2:PackageQuantity')
-        self.Size = json_product.get('AttributeSets').get('ItemAttributes').get('ns2:Size')
-        self.Title = json_product.get('AttributeSets').get('ItemAttributes').get('ns2:Title')
-        self.SmallImageUrl = json_product.get('AttributeSets').get('ItemAttributes').get('ns2:SmallImage').get('ns2:URL')
-        self.Length = json_product.get('AttributeSets').get('ItemAttributes').get('ns2:ItemDimensions') \
-                                  .get('ns2:Length').get('#text')
-        self.Width = json_product.get('AttributeSets').get('ItemAttributes').get('ns2:ItemDimensions') \
-                                 .get('ns2:Width').get('#text')
-        self.Height = json_product.get('AttributeSets').get('ItemAttributes').get('ns2:ItemDimensions') \
-                                  .get('ns2:Height').get('#text')
-        self.Weight = json_product.get('AttributeSets').get('ItemAttributes').get('ns2:ItemDimensions') \
-                                  .get('ns2:Weight').get('#text')
-        self.PackageLength = json_product.get('AttributeSets').get('ItemAttributes').get('ns2:PackageDimensions') \
-                                         .get('ns2:Length').get('#text')
-        self.PackageWidth = json_product.get('AttributeSets').get('ItemAttributes').get('ns2:PackageDimensions') \
-                                        .get('ns2:Width').get('#text')
-        self.PackageHeight = json_product.get('AttributeSets').get('ItemAttributes').get('ns2:PackageDimensions') \
-                                         .get('ns2:Height').get('#text')
-        self.PackageWeight = json_product.get('AttributeSets').get('ItemAttributes').get('ns2:PackageDimensions') \
-                                         .get('ns2:Weight').get('#text')
-
-
-class AprProductDaily(Base):
-
-    __tablename__ = 'Apr_Product_Daily'
-
-    ID = Column(Integer, primary_key=True)
-    Country = Column(String(10))
-    SnapDate = Column(DateTime)
-    Asin = Column(String(20))
-    Title = Column(String(200))
-    ProductCategory = Column(String(60))
-    Category1 = Column(String(100))
-    Rank1 = Column(Integer)
-    Category2 = Column(String(100))
-    Rank2 = Column(Integer)
-    Category3 = Column(String(100))
-    Rank3 = Column(Integer)
-
-    def __init__(self, country, snap_date, json_product):
-        self.Country = country
-        self.SnapDate = snap_date
-        self.Asin = json_product.get('Identifiers').get('MarketplaceASIN').get('ASIN')
-        self.Title = json_product.get('AttributeSets').get('ItemAttributes').get('ns2:Title')
-        self.ProductCategory = json_product.get('AttributeSets').get('ItemAttributes').get('ns2:ProductGroup')
-        self.Category1 = json_product.get('SalesRankings').get('SalesRank')[0].get('ProductCategoryId')
-        self.Rank1 = json_product.get('SalesRankings').get('SalesRank')[0].get('Rank')
-        self.Category2 = json_product.get('SalesRankings').get('SalesRank')[1].get('ProductCategoryId')
-        self.Rank2 = json_product.get('SalesRankings').get('SalesRank')[1].get('Rank')
-        self.Category3 = json_product.get('SalesRankings').get('SalesRank')[2].get('ProductCategoryId') \
-                                       if json_product.get('SalesRankings').get('SalesRank')[2] else ''
-        self.Rank3 = json_product.get('SalesRankings').get('SalesRank')[2].get('Rank') \
-                                       if json_product.get('SalesRankings').get('SalesRank')[2] else 0
-
-
 class PubAsin(Base):
 
     __tablename__ = 'Pub_Asin'
@@ -129,3 +38,133 @@ class AprAsinRank(Base):
         self.CategoryId = json_rank.get('ProductCategoryId')
         self.Rank = json_rank.get('Rank')
         self.LastUpdate = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+
+
+
+#-------------------------------------------------------------------------------
+
+def to_dict(self):
+    return {c.name: getattr(self, c.name, None) for c in self.__table__.columns}
+
+Base.to_dict = to_dict
+
+
+class ApbBestSeller(Base):
+
+    __tablename__ = 'Apb_Best_Seller'
+
+    Country = Column(String(10), primary_key=True)
+    Asin = Column(String(20))
+
+
+class PubAllAsin(Base):
+
+    __tablename__ = 'Pub_All_Asin'
+
+    Country = Column(String(10), primary_key=True)
+    Brand = Column(String(100))
+    Manufacturer = Column(String(600))
+    Publisher = Column(String(600))
+    Studio = Column(String(600))
+    PN = Column(String(50))
+    Asin = Column(String(20), primary_key=True)
+    PartNumber = Column(String(100))
+    Title = Column(String(400))
+    ReleaseDate = Column(DateTime)
+    AmzBinding = Column(String(100))
+    AmzGroup = Column(String(100))
+    AmzType = Column(String(100))
+    Length = Column(DECIMAL(8, 1))
+    Width = Column(DECIMAL(8, 1))
+    Height = Column(DECIMAL(8, 1))
+    Weight = Column(DECIMAL(8, 1))
+    PLength = Column(DECIMAL(8, 1))
+    PWidth = Column(DECIMAL(8, 1))
+    PHeight = Column(DECIMAL(8, 1))
+    PWeight = Column(DECIMAL(8, 1))
+    UnitLength = Column(String(10))
+    UnitWeight = Column(String(10))
+    Color = Column(String(50))
+    Size = Column(String(50))
+    ListPrice = Column(DECIMAL(8, 2))
+    CurrencyCode = Column(String(10))
+    ImageUrl = Column(String(100))
+    MaterialType = Column(String(800))
+    Warranty = Column(String(800))
+
+    def __init__(self, country, asin, product):
+        self.Country = country
+        self.Asin = asin
+        self.Brand = self.str_up(product.get('ns2:Brand'))
+        self.Manufacturer = self.str_up(product.get('ns2:Manufacturer'))
+        self.Publisher = self.str_up(product.get('ns2:Publisher'))
+        self.Studio = self.str_up(product.get('ns2:Studio'))
+        self.PN = product.get('ns2:Model')
+        self.PartNumber = product.get('ns2:PartNumber')
+        self.Title = product.get('ns2:Title')
+        self.ReleaseDate = product.get('ns2:ReleaseDate')
+        self.AmzBinding = product.get('ns2:Binding')
+        self.AmzGroup = product.get('ns2:ProductGroup')
+        self.AmzType = product.get('ns2:ProductTypeName')
+        self.Length = self.is_value(product, 'ns2:ItemDimensions', 'ns2:Length', '#text', 0.0)
+        self.Width = self.is_value(product, 'ns2:ItemDimensions', 'ns2:Width', '#text', 0.0)
+        self.Height = self.is_value(product, 'ns2:ItemDimensions', 'ns2:Height', '#text', 0.0)
+        self.Weight = self.is_value(product, 'ns2:ItemDimensions', 'ns2:Weight', '#text', 0.0)
+        self.PLength = self.is_value(product, 'ns2:PackageDimensions', 'ns2:Length', '#text', 0.0)
+        self.PWidth = self.is_value(product, 'ns2:PackageDimensions', 'ns2:Width', '#text', 0.0)
+        self.PHeight = self.is_value(product, 'ns2:PackageDimensions', 'ns2:Height', '#text', 0.0)
+        self.PWeight = self.is_value(product, 'ns2:PackageDimensions', 'ns2:Weight', '#text', 0.0)
+        self.UnitLength = self.is_value(product, 'ns2:PackageDimensions', 'ns2:Length', '@Units', 0.0)
+        self.UnitWeight = self.is_value(product, 'ns2:PackageDimensions', 'ns2:Weight', '@Units', 0.0)
+        self.Color = self.str_trunc(product.get('ns2:Color'), 50)
+        self.Size = product.get('ns2:Size')
+        self.ListPrice = product.get('ns2:ListPrice').get('ns2:Amount') if product.get('ns2:ListPrice') else 0.0
+        self.CurrencyCode = product.get('ns2:ListPrice').get('ns2:CurrencyCode') if product.get('ns2:ListPrice') else ''
+        self.ImageUrl = product.get('ns2:SmallImage').get('ns2:URL')
+        self.MaterialType = str(product.get('ns2:MaterialType'))
+        self.Warranty = self.str_trunc(product.get('ns2:Warranty'), 800)
+
+    def str_up(self, value):
+        if value:
+            return str(value).upper()
+        else:
+            return value
+
+    def is_value(self, p, field1, field2, field3, value):
+        if p.get(field1) and p.get(field1).get(field2):
+            return p.get(field1).get(field2).get(field3)
+        else:
+            return value
+
+    def str_trunc(self, value, trunc_num):
+        if len(str(value)) > trunc_num:
+            return value[:trunc_num]
+        else:
+            return value
+
+    def to_dict(self):
+        return {c.name: getattr(self, c.name, None) for c in self.__table__.columns}
+
+
+class AprAllAsinRank(Base):
+
+    __tablename__ = 'Apr_All_Asin_Rank'
+
+    ID = Column(Integer)
+    Country = Column(String(10), primary_key=True)
+    SnapDate = Column(DateTime, primary_key=True)
+    SnapHour = Column(String(2), primary_key=True)
+    Asin = Column(String(20), primary_key=True)
+    CategoryId = Column(String(100))
+    Rank = Column(Integer)
+    LastUpdate = Column(DateTime)
+
+    def __init__(self, rank, param):
+        self.Country = param.get('Country')
+        self.SnapDate = param.get('SnapDate')
+        self.SnapHour = param.get('SnapHour')
+        self.Asin = param.get('Asin')
+        self.CategoryId = rank.get('ProductCategoryId')
+        self.Rank = rank.get('Rank')
+        self.LastUpdate = param.get('LastUpdate')
