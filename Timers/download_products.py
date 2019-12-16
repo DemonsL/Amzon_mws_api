@@ -122,25 +122,33 @@ class DownloadProducts:
 
     def add_ranks(self, country, snap_date, p_asin, json_rank):
         session = products.DBSession()
-        for rank in json_rank:
-            session.add(products.AprAsinRank(country, snap_date, p_asin, rank))
-        session.commit()
-        session.close()
+        try:
+            for rank in json_rank:
+                session.add(products.AprAsinRank(country, snap_date, p_asin, rank))
+            session.commit()
+        except Exception as e:
+            log.error('AddRanksError: %s' % e)
+        finally:
+            session.close()
 
     def update_rank(self, country, snap_date, p_asin, json_rank):
         session = products.DBSession()
-        for rank in json_rank:
-            p_id = rank.get('ProductCategoryId')
-            p_rank = rank.get('Rank')
-            session.query(products.AprAsinRank).filter(and_(and_(and_(
-                                                        products.AprAsinRank.Country == country,
-                                                        products.AprAsinRank.SnapDate == snap_date),
-                                                        products.AprAsinRank.Asin == p_asin),
-                                                        products.AprAsinRank.CategoryId == p_id)) \
-                                               .update({'Rank': p_rank,
-                                                        'LastUpdate': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})
-        session.commit()
-        session.close()
+        try:
+            for rank in json_rank:
+                p_id = rank.get('ProductCategoryId')
+                p_rank = rank.get('Rank')
+                session.query(products.AprAsinRank).filter(and_(and_(and_(
+                                                            products.AprAsinRank.Country == country,
+                                                            products.AprAsinRank.SnapDate == snap_date),
+                                                            products.AprAsinRank.Asin == p_asin),
+                                                            products.AprAsinRank.CategoryId == p_id)) \
+                                                   .update({'Rank': p_rank,
+                                                            'LastUpdate': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})
+            session.commit()
+        except Exception as e:
+            log.error('UpdateRankError: %s' % e)
+        finally:
+            session.close()
 
 
 
