@@ -151,6 +151,32 @@ class DownloadProducts:
             session.close()
 
 
+def rank_to_sql():
+    # 数据下载
+    ranks = pd_resp.get('GetCompetitivePricingForASINResponse') \
+        .get('GetCompetitivePricingForASINResult') \
+        .get('Product').get('SalesRankings')
+    # ---没排名的Asin
+    if not ranks:
+        ranks = [{'ProductCategoryId': 'wireless_display_on_website',
+                  'Rank': 0}]
+    else:
+        ranks = ranks.get('SalesRank')
+    # ---只有单个排名
+    list_rank = []
+    if not isinstance(ranks, list):
+        list_rank.append(ranks)
+    else:
+        list_rank = ranks
+    log.info('ranks: %s' % list_rank)
+    # 数据入库
+    last_rank_date = dw_products.get_rank_date(asin)
+    if us_date != str(last_rank_date):
+        log.info('Add asin_rank: %s to sql...' % asin)
+        dw_products.add_ranks('US', us_date, asin, list_rank)
+    else:
+        log.info('Update asin_rank: %s to sql...' % asin)
+        dw_products.update_rank('US', us_date, asin, list_rank)
 
 
 
@@ -177,31 +203,13 @@ if __name__ == '__main__':
             with open(bak_file_name, 'w', encoding='utf-8') as f:
                 f.write(str(pd_resp))
             log.info('Baking today asin_rank file...')
-        # 数据下载
-        ranks = pd_resp.get('GetCompetitivePricingForASINResponse') \
+        p_status = pd_resp.get('GetCompetitivePricingForASINResponse') \
                            .get('GetCompetitivePricingForASINResult') \
-                           .get('Product').get('SalesRankings')
-        # ---没排名的Asin
-        if not ranks:
-            ranks = [{'ProductCategoryId': 'wireless_display_on_website',
-                      'Rank': 0}]
+                           .get('@status')
+        if p_status == 'success':
+            rank_to_sql()
         else:
-            ranks = ranks.get('SalesRank')
-        # ---只有单个排名
-        list_rank = []
-        if not isinstance(ranks, list):
-            list_rank.append(ranks)
-        else:
-            list_rank = ranks
-        log.info('ranks: %s' % list_rank)
-        # 数据入库
-        last_rank_date = dw_products.get_rank_date(asin)
-        if us_date != str(last_rank_date):
-            log.info('Add asin_rank: %s to sql...' % asin)
-            dw_products.add_ranks('US', us_date, asin, list_rank)
-        else:
-            log.info('Update asin_rank: %s to sql...' % asin)
-            dw_products.update_rank('US', us_date, asin, list_rank)
+            log.error('AsinError: %s' % pd_resp)
     log.info('End download asin_rank!')
 
 
