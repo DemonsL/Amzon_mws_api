@@ -203,10 +203,11 @@ if __name__ == '__main__':
             with open(bak_file_name, 'w', encoding='utf-8') as f:
                 f.write(str(pd_resp))
             log.info('Baking today asin_rank file...')
+        # 排名存储
         p_status = pd_resp.get('GetCompetitivePricingForASINResponse') \
                            .get('GetCompetitivePricingForASINResult') \
                            .get('@status')
-        if p_status == 'success':
+        if p_status == 'Success':
             rank_to_sql()
         else:
             log.error('AsinError: %s' % pd_resp)
