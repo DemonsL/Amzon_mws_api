@@ -105,6 +105,9 @@ class DownloadReports:
         for report in report_json:
             if tb_name == 'AprNegativeFeedback':    # feedback添加订单信息
                 od_id = report.get('Order ID')
+                fd_orderids = [fod[2] for fod in self.select_feedback_orderid()]
+                if od_id in fd_orderids:
+                    continue
                 od_info = self.select_order_for_id(od_id)
                 if od_info:
                     report['BuyerName'] = od_info[1]
