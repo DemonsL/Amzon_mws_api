@@ -185,7 +185,7 @@ class DownloadReports:
                             feed_date = fod[1]
                             order_id = fod[2]
                             if (str(feed_date).split('-')[0] == datetime.datetime.now().year) \
-                                               and (order_id in self.get_feedback_orderid(rp)):
+                                               and (order_id not in self.get_feedback_orderid(rp)):
                                 self.update_feedback_rating(order_id)
                 except Exception as e:
                     log.info('AddSqlError: %s', e)
