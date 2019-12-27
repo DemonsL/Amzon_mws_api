@@ -4,7 +4,7 @@ sys.path.append('../')
 import time
 import logging
 import datetime
-from Models import reports
+from Models import reports, orders
 from Common import common
 from MwsApi.reports import Reports
 from Config import mws_config
@@ -63,16 +63,67 @@ class DownloadReports:
             log.info('GetReport Error: %s', e)
         return resp
 
+    # --Start-- 数据库操作
+    def select_feedback_orderid(self):
+        session = reports.DBSession()
+        try:
+            order_ids = session.query(reports.AprNegativeFeedback,
+                                      reports.AprNegativeFeedback.FeedbackDate,
+                                      reports.AprNegativeFeedback.AmazonOrderId).all()
+            return order_ids
+        except Exception as e:
+            log.error('SelectFeedbackError: %s' % e)
+        finally:
+            session.close()
+
+    def select_order_for_id(self, order_id):
+        session = orders.DBSession()
+        try:
+            od_info = session.query(orders.AprOrder, orders.AprOrder.BuyerName,
+                                    orders.AprOrder.BuyerEmail, orders.AprOrder.PurchaseDate) \
+                             .filter(orders.AprOrder.AmazonOrderId == order_id).one()
+            return od_info
+        except Exception as e:
+            log.error('SelectOrderError: %s, OrderId: %s' % (e, order_id))
+        finally:
+            session.close()
+
+    def update_feedback_rating(self, order_id):
+        session = reports.DBSession()
+        try:
+            session.query(reports.AprNegativeFeedback).filter(reports.AprNegativeFeedback.AmazonOrderId == order_id) \
+                                                      .update({'RatingEnd': 0})
+            session.commit()
+        except Exception as e:
+            log.error('UpdateFeedbackError: %s' % e)
+        finally:
+            session.close()
+
     def add_report_to_sql(self, tb_name, country, report_json, snap_date=None):
         execute_sql = 'reports.{}'.format(tb_name)
         session = reports.DBSession()
         for report in report_json:
+            if tb_name == 'AprNegativeFeedback':    # feedback添加订单信息
+                od_id = report.get('Order ID')
+                od_info = self.select_order_for_id(od_id)
+                if od_info:
+                    report['BuyerName'] = od_info[1]
+                    report['BuyerEmail'] = od_info[2]
+                    report['PurchaseDate'] = od_info[3]
             if snap_date:
                 report_to_sql = eval(execute_sql)(snap_date, country, report)
             else:
                 report_to_sql = eval(execute_sql)(country, report)
             session.add(report_to_sql)
         session.commit()
+    # --End-- 数据库操作
+
+    def get_feedback_orderid(self, feedback):
+        order_ids = []
+        for feed in feedback:
+            order_id = feed.get('Order ID')
+            order_ids.append(order_id)
+        return order_ids
 
     def get_report_id(self, rp_client, rpq_id):
         while True:
@@ -127,6 +178,15 @@ class DownloadReports:
                         self.add_report_to_sql(tb_name, mkp.upper(), rp)
                     else:
                         self.add_report_to_sql(tb_name, mkp.upper(), rp, rp_date)
+                    # 确认feedback数据有无被删除
+                    if tb_name == 'AprNegativeFeedback':
+                        feedback_od = self.select_feedback_orderid()
+                        for fod in feedback_od:
+                            feed_date = fod[1]
+                            order_id = fod[2]
+                            if (str(feed_date).split('-')[0] == datetime.datetime.now().year) \
+                                               and (order_id in self.get_feedback_orderid(rp)):
+                                self.update_feedback_rating(order_id)
                 except Exception as e:
                     log.info('AddSqlError: %s', e)
                 log.info('Report add success!')
@@ -144,6 +204,8 @@ def download_report_start(rp_type, mkp):
         delay_day = 2
     if rp_type == '_GET_FBA_FULFILLMENT_LONGTERM_STORAGE_FEE_CHARGES_DATA_':
         delay_day = 15
+    if rp_type == '_GET_SELLER_FEEDBACK_DATA_':
+        delay_day = 360
     report_date = datetime.datetime.now()
     report_date -= datetime.timedelta(days=delay_day)
     start_date = datetime.datetime.strptime(report_date.strftime('%Y-%m-%d 00:00:00'), time_fmt)
@@ -154,6 +216,9 @@ def download_report_start(rp_type, mkp):
             return
         else:
             end_date = datetime.datetime.now()
+    # Feedback 每日查看历史数据有无删除
+    if rp_type == '_GET_SELLER_FEEDBACK_DATA_':
+        end_date = datetime.datetime.now()
     params = {
         "StartDate": common.dsttime_to_localtime(start_date),
         "EndDate": common.dsttime_to_localtime(end_date),
@@ -180,7 +245,8 @@ if __name__ == '__main__':
                       '_GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_',
                       '_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_',
                       '_GET_FBA_FULFILLMENT_INVENTORY_HEALTH_DATA_',
-                      '_GET_FBA_FULFILLMENT_LONGTERM_STORAGE_FEE_CHARGES_DATA_']
+                      '_GET_FBA_FULFILLMENT_LONGTERM_STORAGE_FEE_CHARGES_DATA_',
+                      '_GET_SELLER_FEEDBACK_DATA_']
 
     for rp_type in dw_report_type:
         download_report_start(rp_type, 'us')

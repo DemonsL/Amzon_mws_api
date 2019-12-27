@@ -464,6 +464,39 @@ class AprFBALongFee(Base):
         self.Volume = float(json_report.get('per-unit-volume'))
 
 
+class AprNegativeFeedback(Base):
+
+    __tablename__ = 'Apr_Negative_Feedback'
+
+    ID = Column(Integer)
+    Country = Column(String(10), primary_key=True)
+    FeedbackDate = Column(DateTime)
+    AmazonOrderId = Column(String(20), primary_key=True)
+    BuyerName = Column(String(50))
+    BuyerEmail = Column(String(50))
+    PurchaseDate = Column(DateTime)
+    RatingStart = Column(Integer)
+    RatingEnd = Column(Integer)
+    Comments = Column(String(600))
+    Response = Column(String(600))
+    DealState = Column(String(20))
+    DealDate = Column(DateTime)
+    Backup = Column(String(400))
+    SnapDate = Column(DateTime)
+
+    def __init__(self, snap_date, country, feedback):
+        self.Country = country
+        self.FeedbackDate = datetime.datetime.strptime(feedback.get('Date'), '%m/%d/%y')
+        self.AmazonOrderId = feedback.get('Order ID')
+        self.BuyerName = feedback.get('BuyerName')
+        self.BuyerEmail = feedback.get('BuyerEmail')
+        self.PurchaseDate = feedback.get('PurchaseDate')
+        self.RatingStart = feedback.get('Rating')
+        self.RatingEnd = feedback.get('Rating')
+        self.Comments = feedback.get('Comments')
+        self.Response = feedback.get('Your Response')
+        self.SnapDate = snap_date
+
 
 # class AprSettlementDetail(Base):
 #
