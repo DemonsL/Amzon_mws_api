@@ -178,7 +178,7 @@ if __name__ == '__main__':
     log.info('Start download product info...')
     # best_seller中asin作为参数
     for asin in top_asins:
-        if asin not in all_asins:
+        if (asin not in all_asins) and (asin[0] == 'US'):
             pd_info = download_start(client, asin[1])
             dp.add_pub_all_asin(asin[0], asin[1], pd_info)
     # 自行导入asin作为参数
